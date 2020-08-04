@@ -3,6 +3,7 @@
 #define FORCE_IMPORT_ARRAY
 #include <xtensor/xtensor.hpp>
 #include <xtensor/xsort.hpp>
+#include <xtensor/xmath.hpp>
 #include <xtensor-python/pyarray.hpp>
 
 
@@ -42,7 +43,20 @@ xt::xtensor<int, 1> class_counts(xt::pyarray<int>& y, int& n_cls) {
 }
 
 
+double gini_impurity(xt::pyarray<int>& y, int& n) {
+    // Gini impurity is a measure of how often a randomly chosen
+    // element from the set would be incorrectly labeled if it was 
+    // randomly labeled according to the distribution of labels in the subset. 
+    xt::xtensor<int, 1> counts = class_counts(y, n);
+    xt::pyarray<float> probas = xt::pow(counts / (double)y.shape(0), 2);
+    xt::xarray<double> gini = 1 - xt::sum(probas);
+    
+    return *gini.data();
+}
+
+
 PYBIND11_MODULE(_core, m) {
     xt::import_numpy();
     m.def("num_classes", num_classes);
+    m.def("gini_impurity", gini_impurity);
 }
