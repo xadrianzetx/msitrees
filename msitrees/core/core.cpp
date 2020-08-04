@@ -48,7 +48,7 @@ double gini_impurity(xt::pyarray<int>& y, int& n) {
     // element from the set would be incorrectly labeled if it was 
     // randomly labeled according to the distribution of labels in the subset. 
     xt::xtensor<int, 1> counts = class_counts(y, n);
-    xt::pyarray<float> probas = xt::pow(counts / (double)y.shape(0), 2);
+    xt::xtensor<float, 1> probas = xt::pow(counts / (double)y.shape(0), 2);
     xt::xarray<double> gini = 1 - xt::sum(probas);
     
     return *gini.data();
