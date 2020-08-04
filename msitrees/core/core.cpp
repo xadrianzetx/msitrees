@@ -12,13 +12,12 @@ int num_classes(xt::pyarray<int>& y) {
 }
 
 
-xt::xtensor<int, 1> class_counts(xt::pyarray<int>& y) {
+xt::xtensor<int, 1> class_counts(xt::pyarray<int>& y, int& n_cls) {
     // initial implementation, change if too slow
-
-    // sorted unique input gives N classes
+    // returns counts of observations for each
+    // unique discrete class
     xt::xtensor<int, 1> sorted = xt::sort(y);
-    xt::xtensor<int, 1> cls = xt::unique(sorted);
-    xt::xtensor<int, 1> cts = xt::zeros<int>(cls.shape());
+    xt::xtensor<int, 1> cts = xt::zeros<int>({n_cls});
 
     int *idx = sorted.begin();
     int *end = sorted.end();
