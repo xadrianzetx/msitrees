@@ -55,8 +55,18 @@ double gini_impurity(xt::pyarray<int>& y, int& n) {
 }
 
 
+double entropy(xt::pyarray<int>& y, int& n) {
+    xt::xtensor<int, 1> counts = class_counts(y, n);
+    xt::xtensor<float, 1> probas = counts / (double)y.shape(0);
+    xt::xarray<double> entropy = xt::sum(-probas * xt::log2(probas));
+
+    return *entropy.data();
+}
+
+
 PYBIND11_MODULE(_core, m) {
     xt::import_numpy();
     m.def("num_classes", num_classes);
     m.def("gini_impurity", gini_impurity);
+    m.def("entropy", entropy);
 }
