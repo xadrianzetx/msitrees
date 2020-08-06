@@ -6,9 +6,6 @@ from setuptools.command.build_ext import build_ext
 
 __version__ = '0.1.dev0'
 
-# os.environ["CC"] = "gcc"
-# os.environ["CXX"] = "gcc"
-
 
 def get_long_desc():
     # TODO
@@ -40,8 +37,11 @@ def get_ext_modules():
         ],
         language='c++',
         # extra flags for linux dist
+        # https://github.com/xtensor-stack/xtensor/issues/1704
+        # on windows -ffast-math is enabled by default with
+        # equivalent /fp:precise flag
         extra_link_args=['-lstdc++'],
-        extra_compile_args=['-ffast-math', '-mavx2']
+        extra_compile_args=['-std=c++14', '-ffast-math', '-mavx2']
     )
     return [ext]
 
