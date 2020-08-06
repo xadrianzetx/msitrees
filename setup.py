@@ -6,6 +6,9 @@ from setuptools.command.build_ext import build_ext
 
 __version__ = '0.1.dev0'
 
+# os.environ["CC"] = "gcc"
+# os.environ["CXX"] = "gcc"
+
 
 def get_long_desc():
     # TODO
@@ -35,7 +38,10 @@ def get_ext_modules():
             include_pybind(),
             os.path.join(os.getcwd(), 'msitrees', 'core', 'include')
         ],
-        language='c++'
+        language='c++',
+        # extra flags for linux dist
+        extra_link_args=['-lstdc++'],
+        extra_compile_args=['-ffast-math', '-mavx2']
     )
     return [ext]
 
