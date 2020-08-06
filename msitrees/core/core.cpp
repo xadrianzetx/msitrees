@@ -26,6 +26,7 @@ double gini_impurity(xt::pyarray<int>& y) {
 
 
 double entropy(xt::pyarray<int>& y) {
+    // https://en.wikipedia.org/wiki/Entropy_(information_theory)
     xt::xtensor<int, 1> counts = xt::bincount(y);
     xt::xtensor<float, 1> probas = counts / (double)y.shape(0);
     xt::xarray<double> entropy = xt::sum(-probas * xt::log2(probas));
