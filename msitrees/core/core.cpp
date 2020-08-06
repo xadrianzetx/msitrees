@@ -18,7 +18,7 @@ double gini_impurity(xt::pyarray<int>& y) {
     // element from the set would be incorrectly labeled if it was 
     // randomly labeled according to the distribution of labels in the subset. 
     xt::xtensor<int, 1> counts = xt::bincount(y);
-    xt::xtensor<float, 1> probas = xt::pow(counts / (double)y.shape(0), 2);
+    xt::xtensor<double, 1> probas = xt::pow(counts / (double)y.shape(0), 2);
     xt::xarray<double> gini = 1 - xt::sum(probas);
     
     return *gini.data();
@@ -28,7 +28,7 @@ double gini_impurity(xt::pyarray<int>& y) {
 double entropy(xt::pyarray<int>& y) {
     // https://en.wikipedia.org/wiki/Entropy_(information_theory)
     xt::xtensor<int, 1> counts = xt::bincount(y);
-    xt::xtensor<float, 1> probas = counts / (double)y.shape(0);
+    xt::xtensor<double, 1> probas = counts / (double)y.shape(0);
     xt::xarray<double> entropy = xt::sum(-probas * xt::log2(probas));
 
     return *entropy.data();
