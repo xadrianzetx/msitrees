@@ -24,10 +24,12 @@ class TestGiniImpurity(unittest.TestCase):
         pass
 
     def test_input_empty_list(self):
-        pass
+        with self.assertRaises(ValueError):
+            gini_impurity([])
 
     def test_input_empty_array(self):
-        pass
+        with self.assertRaises(ValueError):
+            gini_impurity(np.array([]))
 
     def test_binary_max_impurity(self):
         arr = np.array([1, 0, 1, 0])

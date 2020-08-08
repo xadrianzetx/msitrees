@@ -16,7 +16,12 @@ int num_classes(xt::pyarray<int>& y) {
 double gini_impurity(xt::pyarray<int>& y) {
     // Gini impurity is a measure of how often a randomly chosen
     // element from the set would be incorrectly labeled if it was 
-    // randomly labeled according to the distribution of labels in the subset. 
+    // randomly labeled according to the distribution of labels in the subset.
+
+    if (y.shape(0) == 0) {
+        throw pybind11::value_error("Empty array passed to gini_impurity");
+    }
+
     xt::xtensor<int, 1> counts = xt::bincount(y);
     xt::xtensor<double, 1> probas = xt::pow(counts / (double)y.shape(0), 2);
     xt::xarray<double> gini = 1 - xt::sum(probas);
@@ -27,6 +32,11 @@ double gini_impurity(xt::pyarray<int>& y) {
 
 double entropy(xt::pyarray<int>& y) {
     // https://en.wikipedia.org/wiki/Entropy_(information_theory)
+
+    if (y.shape(0) == 0) {
+        throw pybind11::value_error("Empty array passed to entropy");
+    }
+
     xt::xtensor<int, 1> counts = xt::bincount(y);
     xt::xtensor<double, 1> probas = counts / (double)y.shape(0);
     xt::xarray<double> entropy = xt::sum(-probas * xt::log2(probas));
