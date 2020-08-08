@@ -9,15 +9,14 @@ class TestGiniImpurity(unittest.TestCase):
         try:
             gini_impurity([0, 0])
 
-        except RuntimeError:
-            # wrong exception to test against, FIXME
+        except TypeError:
             self.fail('Exception on allowed input type')
 
     def test_input_type_numpy(self):
         try:
             gini_impurity(np.array([[0, 0]]))
 
-        except RuntimeError:
+        except TypeError:
             self.fail('Exception on allowed input type')
 
     def test_input_other(self):
