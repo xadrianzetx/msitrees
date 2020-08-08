@@ -10,17 +10,36 @@ class TestGiniImpurity(unittest.TestCase):
             gini_impurity([0, 0])
 
         except TypeError:
-            self.fail('Exception on allowed input type')
+            self.fail('Exception on allowed input type - list')
+
+    def test_input_type_tuple(self):
+        try:
+            gini_impurity((0, 0))
+
+        except TypeError:
+            self.fail('Exception on allowed input type - tuple')
 
     def test_input_type_numpy(self):
         try:
-            gini_impurity(np.array([[0, 0]]))
+            gini_impurity(np.array([0, 0]))
 
         except TypeError:
-            self.fail('Exception on allowed input type')
+            self.fail('Exception on allowed input type - np.ndarray')
+
+    def test_input_int(self):
+        with self.assertRaises(ValueError):
+            gini_impurity(0)
 
     def test_input_other(self):
-        pass
+        with self.assertRaises(TypeError):
+            gini_impurity('foo')
+
+        with self.assertRaises(TypeError):
+            gini_impurity({'foo': 1})
+
+    def test_input_wrong_shape(self):
+        with self.assertRaises(ValueError):
+            gini_impurity(np.array([[1, 0], [1, 0]]))
 
     def test_input_empty_list(self):
         with self.assertRaises(ValueError):
