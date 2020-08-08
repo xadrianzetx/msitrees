@@ -4,6 +4,7 @@
 #include <xtensor/xtensor.hpp>
 #include <xtensor/xmath.hpp>
 #include <xtensor/xhistogram.hpp>
+#include <xtensor/xindex_view.hpp>
 #include <xtensor-python/pyarray.hpp>
 
 
@@ -45,7 +46,10 @@ double entropy(xt::pyarray<int>& y) {
         throw py::value_error("Empty array passed to entropy");
 
     xt::xtensor<int, 1> counts = xt::bincount(y);
-    xt::xtensor<double, 1> probas = counts / (double)y.shape(0);
+    // fix bincount output for non-consecutive class labels
+    // or multiclass not including 0
+    xt::xtensor<int, 1> fcounts = xt::filter(counts, counts > 0);
+    xt::xtensor<double, 1> probas = fcounts / (double)y.shape(0);
     xt::xarray<double> entropy = xt::sum(-probas * xt::log2(probas));
 
     return *entropy.data();
