@@ -56,9 +56,27 @@ double entropy(xt::pyarray<int>& y) {
 }
 
 
+double gini_inf_gain(xt::pyarray<int>& left,
+    xt::pyarray<int>& right, xt::pyarray<int>& all) {
+    // https://en.wikipedia.org/wiki/Information_gain_in_decision_trees
+
+    double gini_left = gini_impurity(left);
+    double gini_right = gini_impurity(right); 
+    double h = gini_impurity(all);
+
+    double dimall = (double)all.shape(0);
+    double hl = ((double)left.shape(0) / dimall) * gini_left;
+    double hr = ((double)right.shape(0) / dimall) * gini_right;
+    double gain = h - (hl + hr);
+
+    return gain;
+}
+
+
 PYBIND11_MODULE(_core, m) {
     xt::import_numpy();
-    m.def("num_classes", num_classes);
-    m.def("gini_impurity", gini_impurity);
-    m.def("entropy", entropy);
+    m.def("num_classes", &num_classes);
+    m.def("gini_impurity", &gini_impurity);
+    m.def("entropy", &entropy);
+    m.def("gini_information_gain", &gini_inf_gain);
 }
