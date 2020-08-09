@@ -1,6 +1,10 @@
 import unittest
 import numpy as np
-from msitrees._core import gini_impurity, entropy
+from msitrees._core import (
+    gini_impurity,
+    gini_information_gain,
+    entropy
+)
 
 
 class TestGiniImpurity(unittest.TestCase):
@@ -126,6 +130,147 @@ class TestEntropy(unittest.TestCase):
         arr = np.array([1, 2, 3, 4])
         hs = entropy(arr)
         self.assertAlmostEqual(hs, 2.)
+
+
+class TestGiniInformationGain(unittest.TestCase):
+
+    def test_input_type_list(self):
+        yl = [0, 0, 0]
+        yr = [1, 1, 1]
+        yall = [0, 0, 0, 1, 1, 1]
+
+        try:
+            gini_information_gain(yl, yr, yall)
+
+        except TypeError:
+            self.fail('Exception on allowed input type - list')
+
+    def test_input_type_tuple(self):
+        yl = (0, 0, 0)
+        yr = (1, 1, 1)
+        yall = (0, 0, 0, 1, 1, 1)
+
+        try:
+            gini_information_gain(yl, yr, yall)
+
+        except TypeError:
+            self.fail('Exception on allowed input type - tuple')
+
+    def test_input_type_numpy(self):
+        yl = np.array([0, 0, 0])
+        yr = np.array([1, 1, 1])
+        yall = np.array([0, 0, 0, 1, 1, 1])
+
+        try:
+            gini_information_gain(yl, yr, yall)
+
+        except TypeError:
+            self.fail('Exception on allowed input type - np.ndarray')
+
+    def test_input_int(self):
+        yl = np.array([0, 0, 0])
+        yr = np.array([1, 1, 1])
+        yall = np.array([0, 0, 0, 1, 1, 1])
+
+        with self.assertRaises(ValueError):
+            gini_information_gain(0, yr, yall)
+
+        with self.assertRaises(ValueError):
+            gini_information_gain(yl, 0, yall)
+
+        with self.assertRaises(ValueError):
+            gini_information_gain(yl, yr, 0)
+
+    def test_input_other(self):
+        yl = np.array([0, 0, 0])
+        yr = np.array([1, 1, 1])
+        yall = np.array([0, 0, 0, 1, 1, 1])
+
+        with self.assertRaises(TypeError):
+            gini_information_gain('foo', yr, yall)
+
+        with self.assertRaises(TypeError):
+            gini_information_gain(yl, 'foo', yr)
+
+        with self.assertRaises(TypeError):
+            gini_information_gain(yl, yr, 'foo11')
+
+    def test_input_wrong_shape(self):
+        badshape = np.array([[1], [1], [1]])
+        yl = np.array([0, 0, 0])
+        yr = np.array([1, 1, 1])
+        yall = np.array([0, 0, 0, 1, 1, 1])
+
+        with self.assertRaises(ValueError):
+            gini_information_gain(badshape, yr, yall)
+
+        with self.assertRaises(ValueError):
+            gini_information_gain(yl, badshape, yall)
+
+        with self.assertRaises(ValueError):
+            gini_information_gain(yl, yr, badshape)
+
+    def test_input_empty_array(self):
+        yl = np.array([0, 0, 0])
+        yr = np.array([1, 1, 1])
+        yall = np.array([0, 0, 0, 1, 1, 1])
+
+        with self.assertRaises(ValueError):
+            gini_information_gain([], yr, yall)
+
+        with self.assertRaises(ValueError):
+            gini_information_gain(yl, [], yall)
+
+        with self.assertRaises(ValueError):
+            gini_information_gain(yl, yr, [])
+
+    def test_binary_perfect_split(self):
+        yl = np.array([0, 0])
+        yr = np.array([1, 1])
+        yall = np.array([0, 0, 1, 1])
+
+        gain = gini_information_gain(yl, yr, yall)
+        self.assertAlmostEqual(gain, 0.5)
+
+    def test_binary_noisy_split(self):
+        yl = np.array([0, 1])
+        yr = np.array([1, 0])
+        yall = np.array([0, 0, 1, 1])
+
+        gain = gini_information_gain(yl, yr, yall)
+        self.assertAlmostEqual(gain, 0.0)
+
+    def test_binary_uneven_split(self):
+        yl = np.array([0, 0])
+        yr = np.array([1, 1, 1])
+        yall = np.array([0, 0, 1, 1, 1])
+
+        gain = gini_information_gain(yl, yr, yall)
+        self.assertAlmostEqual(gain, 0.48)
+
+    def test_multiclass_perfect_split(self):
+        yl = np.array([1, 1])
+        yr = np.array([2, 2])
+        yall = np.array([2, 2, 1, 1])
+
+        gain = gini_information_gain(yl, yr, yall)
+        self.assertAlmostEqual(gain, 0.5)
+
+    def test_multiclass_noisy_split(self):
+        yl = np.array([2, 1])
+        yr = np.array([1, 2])
+        yall = np.array([2, 2, 1, 1])
+
+        gain = gini_information_gain(yl, yr, yall)
+        self.assertAlmostEqual(gain, 0.0)
+
+    def test_multiclass_uneven_split(self):
+        yl = np.array([1, 1])
+        yr = np.array([2, 2, 3])
+        yall = np.array([2, 2, 1, 1, 3])
+
+        gain = gini_information_gain(yl, yr, yall)
+        self.assertAlmostEqual(gain, 0.3733, places=4)
 
 
 if __name__ == "__main__":
