@@ -73,6 +73,18 @@ double gini_inf_gain(xt::pyarray<int>& left,
 }
 
 
+void get_label_and_proba(xt::pyarray<int>& y) {
+    // this one should be called after getting best
+    // split and calculate majority class and
+    // its proba in new branch
+}
+
+
+void get_best_split(xt::pyarray<float>& x, xt::pyarray<int>& y) {
+    // main split testing loop
+}
+
+
 PYBIND11_MODULE(_core, m) {
     xt::import_numpy();
     m.def("num_classes", &num_classes);
