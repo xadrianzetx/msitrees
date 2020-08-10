@@ -1,8 +1,10 @@
+#include <limits>
 #include <pybind11/pybind11.h>
 #include <xtensor/xarray.hpp>
 #define FORCE_IMPORT_ARRAY
 #include <xtensor/xtensor.hpp>
 #include <xtensor/xmath.hpp>
+#include <xtensor/xview.hpp>
 #include <xtensor/xhistogram.hpp>
 #include <xtensor/xindex_view.hpp>
 #include <xtensor-python/pyarray.hpp>
@@ -80,8 +82,42 @@ void get_label_and_proba(xt::pyarray<int>& y) {
 }
 
 
-void get_best_split(xt::pyarray<float>& x, xt::pyarray<int>& y) {
-    // main split testing loop
+xt::pyarray<double> cgbs(xt::pyarray<double>& x, xt::pyarray<int>& y, int& nfts) {
+    // finds best tree split wrt. gini based information gain
+    // to be used in classification tasks
+    int bestfeat; 
+    double bestsplt;
+    double maxgain = -std::numeric_limits<double>::infinity();
+
+    for (int i = 0; i < nfts; i++) {
+        xt::xtensor<double, 1> col = xt::view(x, xt::all(), i);
+        xt::xtensor<double, 1> lvls = xt::unique(col);
+        size_t nlvls = lvls.shape(0);
+        
+        for (int j = 0; j < nlvls; j++) {
+            double lvl = lvls(j);
+            xt::pyarray<int> left = xt::filter(y, col < lvl);
+            xt::pyarray<int> right = xt::filter(y, col >= lvl);
+            
+            if (left.shape(0) == 0 || right.shape(0) == 0) {
+                // split was proposed on either min or max
+                // level, so all data is in either right or
+                // left node - can skip this one
+                continue;
+            }
+
+            double gain = gini_inf_gain(left, right, y);
+
+            if (gain > maxgain) {
+                maxgain = gain;
+                bestfeat = i;
+                bestsplt = lvl;
+            }
+        }
+    }
+
+    xt::pyarray<double> params {(double)bestfeat, bestsplt};
+    return params;
 }
 
 
@@ -91,4 +127,5 @@ PYBIND11_MODULE(_core, m) {
     m.def("gini_impurity", &gini_impurity);
     m.def("entropy", &entropy);
     m.def("gini_information_gain", &gini_inf_gain);
+    m.def("classif_best_split", &cgbs);
 }
