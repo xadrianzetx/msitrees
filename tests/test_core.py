@@ -3,7 +3,8 @@ import numpy as np
 from msitrees._core import (
     gini_impurity,
     gini_information_gain,
-    entropy
+    entropy,
+    get_class_and_proba
 )
 
 
@@ -271,6 +272,94 @@ class TestGiniInformationGain(unittest.TestCase):
 
         gain = gini_information_gain(yl, yr, yall)
         self.assertAlmostEqual(gain, 0.3733, places=4)
+
+
+class TestGetClassProba(unittest.TestCase):
+
+    def test_input_type_list(self):
+        y = [1, 1, 0, 0]
+
+        try:
+            get_class_and_proba(y)
+
+        except TypeError:
+            self.fail('Exception on allowed input type - list')
+
+    def test_input_type_tuple(self):
+        y = (1, 1, 0, 0)
+
+        try:
+            get_class_and_proba(y)
+
+        except TypeError:
+            self.fail('Exception on allowed input type - tuple')
+
+    def test_input_type_numpy(self):
+        y = np.array([1, 1, 0, 0])
+
+        try:
+            get_class_and_proba(y)
+
+        except TypeError:
+            self.fail('Exception on allowed input type - np.ndarray')
+
+    def test_input_int(self):
+        with self.assertRaises(ValueError):
+            get_class_and_proba(0)
+
+    def test_input_other(self):
+        with self.assertRaises(TypeError):
+            get_class_and_proba('foo')
+
+    def test_input_wrong_shape(self):
+        badshape = np.array([[1], [1], [1]])
+
+        with self.assertRaises(ValueError):
+            get_class_and_proba(badshape)
+
+    def test_input_empty_array(self):
+        with self.assertRaises(ValueError):
+            get_class_and_proba([])
+
+    def test_binary_class_major(self):
+        y = np.array([0, 0, 1, 1, 1])
+        label, _ = get_class_and_proba(y)
+        self.assertEqual(int(label), 1)
+
+    def test_binary_class_draw(self):
+        y = np.array([0, 0, 1, 1])
+        label, _ = get_class_and_proba(y)
+        self.assertEqual(int(label), 0)
+
+    def test_multiclass_class_major(self):
+        y = np.array([1, 2, 3, 3])
+        label, _ = get_class_and_proba(y)
+        self.assertEqual(int(label), 3)
+
+    def test_multiclass_class_draw(self):
+        y = np.array([1, 1, 2, 2, 3, 3])
+        label, _ = get_class_and_proba(y)
+        self.assertEqual(int(label), 1)
+
+    def test_binary_proba_major(self):
+        y = np.array([0, 0, 1, 1, 1])
+        _, proba = get_class_and_proba(y)
+        self.assertAlmostEqual(proba, 0.6)
+
+    def test_binary_proba_draw(self):
+        y = np.array([0, 0, 1, 1])
+        _, proba = get_class_and_proba(y)
+        self.assertAlmostEqual(proba, 0.5)
+
+    def test_multiclass_proba_major(self):
+        y = np.array([1, 2, 3, 3])
+        _, proba = get_class_and_proba(y)
+        self.assertAlmostEqual(proba, 0.5)
+
+    def test_multiclass_proba_draw(self):
+        y = np.array([1, 1, 2, 2, 3, 3])
+        _, proba = get_class_and_proba(y)
+        self.assertAlmostEqual(proba, 0.33333, places=5)
 
 
 if __name__ == "__main__":
