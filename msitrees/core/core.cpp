@@ -75,10 +75,19 @@ double gini_inf_gain(xt::pyarray<int>& left,
 }
 
 
-void get_label_and_proba(xt::pyarray<int>& y) {
-    // this one should be called after getting best
-    // split and calculate majority class and
-    // its proba in new branch
+xt::pyarray<double> class_proba(xt::pyarray<int>& y) {
+    if (y.dimension() != 1)
+        throw py::value_error("Expected array with dim 1 in class_proba");
+
+    if (y.shape(0) == 0)
+        throw py::value_error("Empty array passed to class_proba");
+
+    xt::xtensor<int, 1> counts = xt::bincount(y);
+    int cls = *xt::argmax(counts).data();
+    double proba = counts(cls) / (double)y.shape(0);
+    xt::pyarray<double> params {(double)cls, proba};
+
+    return params;
 }
 
 
@@ -127,5 +136,6 @@ PYBIND11_MODULE(_core, m) {
     m.def("gini_impurity", &gini_impurity);
     m.def("entropy", &entropy);
     m.def("gini_information_gain", &gini_inf_gain);
+    m.def("get_class_and_proba", class_proba);
     m.def("classif_best_split", &cgbs);
 }
