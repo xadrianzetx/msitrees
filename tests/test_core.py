@@ -4,7 +4,8 @@ from msitrees._core import (
     gini_impurity,
     gini_information_gain,
     entropy,
-    get_class_and_proba
+    get_class_and_proba,
+    classif_best_split
 )
 
 
@@ -360,6 +361,69 @@ class TestGetClassProba(unittest.TestCase):
         y = np.array([1, 1, 2, 2, 3, 3])
         _, proba = get_class_and_proba(y)
         self.assertAlmostEqual(proba, 0.33333, places=5)
+
+
+class TestClassifBestSplit(unittest.TestCase):
+
+    def test_input_x_list(self):
+        pass
+
+    def test_input_x_numpy(self):
+        pass
+
+    def test_input_y_list(self):
+        pass
+
+    def test_input_y_numpy(self):
+        pass
+
+    def test_x_one_dim_binary(self):
+        pass
+
+    def test_leftmost_split_binary(self):
+        """Best split is on feature 0"""
+        pass
+
+    def test_rightmost_split_binary(self):
+        """Best split is on feature N"""
+        pass
+
+    def test_node_empty_binary(self):
+        """
+        Test if useless split is bypassed
+        eg. split on min or max value
+        """
+        pass
+
+    def test_one_dim_multicls(self):
+        pass
+
+    def test_leftmost_split_multicls(self):
+        """Best split is on feature 0"""
+        pass
+
+    def test_rightmost_split_multicls(self):
+        """Best split is on feature N"""
+        pass
+
+    def test_node_empty_multiclass(self):
+        pass
+
+    def test_firstsplit_bc(self):
+        """
+        Test if first split on breast cancer
+        dataset (binary classification)
+        is performed correctly
+        """
+        pass
+
+    def test_firstsplit_iris(self):
+        """
+        Test if first split on iris
+        dataset (multiclass classification)
+        is performed correctly
+        """
+        pass
 
 
 if __name__ == "__main__":
