@@ -377,7 +377,7 @@ class TestClassifBestSplit(unittest.TestCase):
             classif_best_split(x, y, 2)
 
         except TypeError:
-            self.fail('')
+            self.fail('Exception on allowed data type')
 
     def test_input_x_numpy(self):
         x = np.array([[1., 0.], [1., 1.]])
@@ -387,7 +387,7 @@ class TestClassifBestSplit(unittest.TestCase):
             classif_best_split(x, y, 2)
 
         except TypeError:
-            self.fail('')
+            self.fail('Exception on allowed data type')
 
     def test_input_y_list(self):
         x = [[1., 0.], [1., 1.]]
@@ -397,7 +397,7 @@ class TestClassifBestSplit(unittest.TestCase):
             classif_best_split(x, y, 2)
 
         except TypeError:
-            self.fail('')
+            self.fail('Exception on allowed data type')
 
     def test_input_y_numpy(self):
         x = np.array([[1., 0.], [1., 1.]])
@@ -407,7 +407,7 @@ class TestClassifBestSplit(unittest.TestCase):
             classif_best_split(x, y, 2)
 
         except TypeError:
-            self.fail('')
+            self.fail('Exception on allowed data type')
 
     def test_x_one_dim_binary(self):
         x = np.array([1., 0.])
