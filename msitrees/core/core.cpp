@@ -94,8 +94,8 @@ xt::pyarray<double> class_proba(xt::pyarray<int>& y) {
 xt::pyarray<double> cgbs(xt::pyarray<double>& x, xt::pyarray<int>& y, int& nfts) {
     // finds best tree split wrt. gini based information gain
     // to be used in classification tasks
-    int bestfeat; 
-    double bestsplt;
+    int bestfeat = 0; 
+    double bestsplt = 0.0;
     double maxgain = -std::numeric_limits<double>::infinity();
 
     for (int i = 0; i < nfts; i++) {
