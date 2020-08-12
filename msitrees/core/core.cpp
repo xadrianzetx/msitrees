@@ -99,7 +99,7 @@ xt::pyarray<double> cgbs(xt::pyarray<double>& x, xt::pyarray<int>& y, int& nfts)
     double maxgain = -std::numeric_limits<double>::infinity();
 
     for (int i = 0; i < nfts; i++) {
-        xt::xtensor<double, 1> col = (nfts != 1) ? xt::view(x, xt::all(), i) : y;
+        xt::xtensor<double, 1> col = (nfts != 1) ? xt::view(x, xt::all(), i) : x;
         xt::xtensor<double, 1> lvls = xt::unique(col);
         size_t nlvls = lvls.shape(0);
         
