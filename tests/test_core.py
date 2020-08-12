@@ -1,5 +1,9 @@
 import unittest
 import numpy as np
+from sklearn.datasets import (
+    load_breast_cancer,
+    load_iris
+)
 from msitrees._core import (
     gini_impurity,
     gini_information_gain,
@@ -366,48 +370,108 @@ class TestGetClassProba(unittest.TestCase):
 class TestClassifBestSplit(unittest.TestCase):
 
     def test_input_x_list(self):
-        pass
+        x = [[1., 0.], [1., 1.]]
+        y = np.array([1, 0])
+
+        try:
+            classif_best_split(x, y, 2)
+
+        except TypeError:
+            self.fail('')
 
     def test_input_x_numpy(self):
-        pass
+        x = np.array([[1., 0.], [1., 1.]])
+        y = np.array([1, 0])
+
+        try:
+            classif_best_split(x, y, 2)
+
+        except TypeError:
+            self.fail('')
 
     def test_input_y_list(self):
-        pass
+        x = [[1., 0.], [1., 1.]]
+        y = [1, 0]
+
+        try:
+            classif_best_split(x, y, 2)
+
+        except TypeError:
+            self.fail('')
 
     def test_input_y_numpy(self):
-        pass
+        x = np.array([[1., 0.], [1., 1.]])
+        y = [1, 0]
+
+        try:
+            classif_best_split(x, y, 2)
+
+        except TypeError:
+            self.fail('')
 
     def test_x_one_dim_binary(self):
-        pass
+        x = np.array([1., 0.])
+        y = np.array([1, 0])
+        feature, value = classif_best_split(x, y, 1)
+        self.assertEqual(int(feature), 0)
+        self.assertEqual(value, 1.)
 
     def test_leftmost_split_binary(self):
         """Best split is on feature 0"""
-        pass
+        x = np.array([[1., 0., 0.], [0., 0., 0.]])
+        y = np.array([1, 0])
+        feature, value = classif_best_split(x, y, 3)
+        self.assertEqual(int(feature), 0)
+        self.assertEqual(value, 1.)
 
     def test_rightmost_split_binary(self):
         """Best split is on feature N"""
-        pass
+        x = np.array([[0., 0., 1], [0., 0., 0]])
+        y = np.array([1, 0])
+        feature, value = classif_best_split(x, y, 3)
+        self.assertEqual(int(feature), 2)
+        self.assertEqual(value, 1.)
 
     def test_node_empty_binary(self):
         """
         Test if useless split is bypassed
         eg. split on min or max value
         """
-        pass
+        x = np.array([1., 1.])
+        y = np.array([0, 0])
+        feature, value = classif_best_split(x, y, 1)
+        self.assertEqual(int(feature), 0)
+        self.assertEqual(value, 0.)
 
     def test_one_dim_multicls(self):
-        pass
+        x = np.array([1., 1., 0., 0.])
+        y = np.array([1, 1, 2, 2])
+        feature, value = classif_best_split(x, y, 1)
+        self.assertEqual(int(feature), 0)
+        self.assertEqual(value, 1.)
 
     def test_leftmost_split_multicls(self):
         """Best split is on feature 0"""
-        pass
+        x = np.array([[1., 0., 0.], [0., 0., 0.]])
+        y = np.array([1, 2])
+        feature, value = classif_best_split(x, y, 3)
+        self.assertEqual(int(feature), 0)
+        self.assertEqual(value, 1.)
 
     def test_rightmost_split_multicls(self):
         """Best split is on feature N"""
-        pass
+        x = np.array([[0., 0., 1], [0., 0., 0]])
+        y = np.array([1, 2])
+        feature, value = classif_best_split(x, y, 3)
+        self.assertEqual(int(feature), 2)
+        self.assertEqual(value, 1.)
 
-    def test_node_empty_multiclass(self):
-        pass
+    def test_node_empty_multicls(self):
+        x = np.array([1., 1.])
+        y = np.array([2, 2])
+        feature, value = classif_best_split(x, y, 1)
+        self.assertEqual(int(feature), 0)
+        self.assertEqual(value, 0.)
 
     def test_firstsplit_bc(self):
         """
@@ -415,7 +479,15 @@ class TestClassifBestSplit(unittest.TestCase):
         dataset (binary classification)
         is performed correctly
         """
-        pass
+        data = load_breast_cancer()
+        nfeats = data['data'].shape[1]
+        feature, value = classif_best_split(
+            data['data'],
+            data['target'],
+            nfeats
+        )
+        self.assertEqual(int(feature), 20)
+        self.assertAlmostEqual(value, 16.82)
 
     def test_firstsplit_iris(self):
         """
@@ -423,7 +495,15 @@ class TestClassifBestSplit(unittest.TestCase):
         dataset (multiclass classification)
         is performed correctly
         """
-        pass
+        data = load_iris()
+        nfeats = data['data'].shape[1]
+        feature, value = classif_best_split(
+            data['data'],
+            data['target'],
+            nfeats
+        )
+        self.assertEqual(int(feature), 2)
+        self.assertAlmostEqual(value, 3.0)
 
 
 if __name__ == "__main__":
