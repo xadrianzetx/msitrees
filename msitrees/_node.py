@@ -56,7 +56,7 @@ class MSINode:
         return ncl or ncr
 
     def predict(self, x: np.ndarray) -> tuple:
-        if self.y:
+        if self.y is not None:
             return (self.y, self.proba)
 
         if x[self.feature] < self.split:
