@@ -43,3 +43,56 @@ class MockupTreeFactory:
         self.ids.append(root.id)
 
         return root
+
+
+class TestMSINode(unittest.TestCase):
+
+    def test_get_by_id(self):
+        factory = MockupTreeFactory(3)
+        root = factory.build()
+        id = np.random.choice(factory.ids)
+        node = root.get_node_by_id(id)
+        self.assertEqual(node.id, id)
+
+    def test_get_by_id_pruned(self):
+        factory = MockupTreeFactory(3, prune=True)
+        root = factory.build()
+        id = np.random.choice(factory.ids)
+        node = root.get_node_by_id(id)
+        self.assertEqual(node.id, id)
+
+    def test_node_value_assigned(self):
+        factory = MockupTreeFactory(1)
+        root = factory.build()
+        id = np.random.choice(factory.ids)
+        node = root.get_node_by_id(id)
+        node.proba = 1.0
+
+        # one of those should now
+        # have value assigned
+        lproba = root.left.proba
+        rproba = root.right.proba
+        proba = lproba or rproba
+        self.assertIsNotNone(proba)
+
+    def test_node_delete(self):
+        # TODO
+        pass
+
+    def test_node_count(self):
+        depth = 4
+        factory = MockupTreeFactory(depth)
+        root = factory.build()
+        expected = 2 ** (depth + 1) - 1
+        count = root._count_child_nodes()
+        self.assertEqual(count, expected)
+
+    def test_tree_representation(self):
+        # TODO
+        pass
+
+    # TODO Test root.predict
+
+
+if __name__ == "__main__":
+    unittest.main()
