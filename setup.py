@@ -50,7 +50,7 @@ setup(
     name='msitrees',
     version=__version__,
     author='xadrianzetx',
-    packages=find_packages(),
+    packages=find_packages(include=['msitrees']),
     ext_modules=get_ext_modules(),
     python_requires='>=3.5',
     setup_requires=[
