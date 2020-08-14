@@ -26,7 +26,8 @@ class MSINode:
         self.y = y
 
     def __repr__(self):
-        pass
+        num_nodes = self._count_child_nodes()
+        return 'Tree root/node with {} children'.format(num_nodes)
 
     def __str__(self):
         r = self._get_tree_structure()
@@ -45,6 +46,15 @@ class MSINode:
                 'left': node_left,
                 'right': node_right
             }
+
+    def _count_child_nodes(self) -> int:
+        if self.y is not None:
+            return 1
+
+        lcount = self.left._count_child_nodes()
+        rcount = self.right._count_child_nodes()
+
+        return lcount + rcount + 1
 
     def get_node_by_id(self, id: str) -> 'MSINode':
         if self.id == id:
