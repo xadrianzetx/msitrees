@@ -285,7 +285,7 @@ class TestGetClassProba(unittest.TestCase):
         y = [1, 1, 0, 0]
 
         try:
-            get_class_and_proba(y)
+            get_class_and_proba(y, 2)
 
         except TypeError:
             self.fail('Exception on allowed input type - list')
@@ -294,7 +294,7 @@ class TestGetClassProba(unittest.TestCase):
         y = (1, 1, 0, 0)
 
         try:
-            get_class_and_proba(y)
+            get_class_and_proba(y, 2)
 
         except TypeError:
             self.fail('Exception on allowed input type - tuple')
@@ -303,68 +303,106 @@ class TestGetClassProba(unittest.TestCase):
         y = np.array([1, 1, 0, 0])
 
         try:
-            get_class_and_proba(y)
+            get_class_and_proba(y, 2)
 
         except TypeError:
             self.fail('Exception on allowed input type - np.ndarray')
 
     def test_input_int(self):
         with self.assertRaises(ValueError):
-            get_class_and_proba(0)
+            get_class_and_proba(0, 0)
 
     def test_input_other(self):
         with self.assertRaises(TypeError):
-            get_class_and_proba('foo')
+            get_class_and_proba('foo', 0)
 
     def test_input_wrong_shape(self):
         badshape = np.array([[1], [1], [1]])
 
         with self.assertRaises(ValueError):
-            get_class_and_proba(badshape)
+            get_class_and_proba(badshape, 2)
 
     def test_input_empty_array(self):
         with self.assertRaises(ValueError):
-            get_class_and_proba([])
+            get_class_and_proba([], 0)
 
     def test_binary_class_major(self):
         y = np.array([0, 0, 1, 1, 1])
-        label, _ = get_class_and_proba(y)
-        self.assertEqual(int(label), 1)
+        label, _ = get_class_and_proba(y, 2)
+        self.assertEqual(label, 1)
 
     def test_binary_class_draw(self):
         y = np.array([0, 0, 1, 1])
-        label, _ = get_class_and_proba(y)
-        self.assertEqual(int(label), 0)
+        label, _ = get_class_and_proba(y, 2)
+        self.assertEqual(label, 0)
 
     def test_multiclass_class_major(self):
-        y = np.array([1, 2, 3, 3])
-        label, _ = get_class_and_proba(y)
-        self.assertEqual(int(label), 3)
+        y = np.array([0, 1, 2, 2])
+        label, _ = get_class_and_proba(y, 3)
+        self.assertEqual(label, 2)
 
     def test_multiclass_class_draw(self):
-        y = np.array([1, 1, 2, 2, 3, 3])
-        label, _ = get_class_and_proba(y)
-        self.assertEqual(int(label), 1)
+        y = np.array([0, 0, 1, 1, 2, 2])
+        label, _ = get_class_and_proba(y, 3)
+        self.assertEqual(label, 0)
 
     def test_binary_proba_major(self):
         y = np.array([0, 0, 1, 1, 1])
-        _, proba = get_class_and_proba(y)
-        self.assertAlmostEqual(proba, 0.6)
+        label, proba = get_class_and_proba(y, 2)
+        self.assertAlmostEqual(proba[label], 0.6)
+        self.assertAlmostEqual(proba[0], 1 - 0.6)
 
     def test_binary_proba_draw(self):
         y = np.array([0, 0, 1, 1])
-        _, proba = get_class_and_proba(y)
-        self.assertAlmostEqual(proba, 0.5)
+        label, proba = get_class_and_proba(y, 2)
+        self.assertAlmostEqual(proba[label], 0.5)
+        self.assertAlmostEqual(proba[1], 1 - 0.5)
 
     def test_multiclass_proba_major(self):
-        y = np.array([1, 2, 3, 3])
-        _, proba = get_class_and_proba(y)
-        self.assertAlmostEqual(proba, 0.5)
+        y = np.array([0, 1, 2, 2])
+        label, proba = get_class_and_proba(y, 3)
+        self.assertAlmostEqual(proba[label], 0.5)
+        self.assertAlmostEqual(proba[0], 0.25)
+        self.assertAlmostEqual(proba[1], 0.25)
 
     def test_multiclass_proba_draw(self):
-        y = np.array([1, 1, 2, 2, 3, 3])
-        _, proba = get_class_and_proba(y)
-        self.assertAlmostEqual(proba, 0.33333, places=5)
+        y = np.array([0, 0, 1, 1, 2, 2])
+        label, proba = get_class_and_proba(y, 3)
+        self.assertAlmostEqual(proba[label], 0.33333, places=5)
+        self.assertAlmostEqual(proba[1], 0.33333, places=5)
+        self.assertAlmostEqual(proba[2], 0.33333, places=5)
+
+    def test_padding_left(self):
+        # binary classification, but
+        # leaf only has class 1 - test
+        # if 0 is represented with proba 0.
+        y = np.array([1, 1])
+        _, proba = get_class_and_proba(y, 2)
+        self.assertEqual(len(proba), 2)
+        self.assertEqual(proba[0], 0.0)
+        self.assertEqual(proba[1], 1.0)
+
+    def test_padding_inner(self):
+        # multiclass classification
+        # with classes 0, 1, 2 but leaf
+        # only has class 1 and 2. check
+        # if class 1 is represented with proba 0.
+        y = np.array([0, 0, 2, 2])
+        _, proba = get_class_and_proba(y, 3)
+        self.assertEqual(len(proba), 3)
+        self.assertEqual(proba[1], 0.0)
+        self.assertAlmostEqual(proba[0], 0.5)
+        self.assertAlmostEqual(proba[2], 0.5)
+
+    def test_padding_right(self):
+        # binary classification, but
+        # leaf only has class 0 - test
+        # if 1 is represented with proba 0.
+        y = np.array([0, 0])
+        _, proba = get_class_and_proba(y, 2)
+        self.assertEqual(len(proba), 2)
+        self.assertEqual(proba[1], 0.0)
+        self.assertEqual(proba[0], 1.0)
 
 
 class TestClassifBestSplit(unittest.TestCase):
