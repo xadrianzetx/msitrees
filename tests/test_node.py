@@ -64,6 +64,7 @@ class TestMSINode(unittest.TestCase):
     def test_node_value_assigned(self):
         factory = MockupTreeFactory(1)
         root = factory.build()
+        factory.ids.remove(root.id)
         id = np.random.choice(factory.ids)
         node = root.get_node_by_id(id)
         node.proba = 1.0
@@ -76,8 +77,14 @@ class TestMSINode(unittest.TestCase):
         self.assertIsNotNone(proba)
 
     def test_node_delete(self):
-        # TODO
-        pass
+        depth = 4
+        factory = MockupTreeFactory(depth)
+        root = factory.build()
+        # cut left branch of the tree
+        root.left = None
+        expected = 2 ** (depth + 1) / 2
+        count = root._count_child_nodes()
+        self.assertEqual(count, expected)
 
     def test_node_count(self):
         depth = 4
@@ -88,10 +95,34 @@ class TestMSINode(unittest.TestCase):
         self.assertEqual(count, expected)
 
     def test_tree_representation(self):
-        # TODO
-        pass
+        expected = {
+            'feature': None,
+            'split': None,
+            'left': {'leaf': 0},
+            'right': {'leaf': 0}
+        }
+        factory = MockupTreeFactory(1)
+        root = factory.build()
+        r = root._get_tree_structure()
+        self.assertDictEqual(r, expected)
 
-    # TODO Test root.predict
+    def test_tree_traversal(self):
+        x = np.array(
+            [[0., 0., 0.],
+            [0., 1., 0.]]
+        )
+        y = np.array([0, 1])
+        factory = MockupTreeFactory(1)
+        root = factory.build()
+
+        # set up fake split points
+        root.split = 1.
+        root.feature = 1
+        root.left.y = 0
+        root.right.y = 1
+
+        self.assertEqual(root.predict(x[0])[0], y[0])
+        self.assertEqual(root.predict(x[1])[0], y[1])
 
 
 if __name__ == "__main__":
