@@ -77,7 +77,7 @@ double gini_inf_gain(xt::pyarray<int>& left,
 
 
 std::tuple<int, xt::xarray<double>> class_proba(xt::pyarray<int>& y,
-    size_t n_classes) {
+    size_t& n_classes) {
     // assuming that labels are encoded as 0 to n_classes, select
     // majority class in y and calculate array of probavilities
     // of selecting item from any given class
@@ -106,7 +106,8 @@ std::tuple<int, xt::xarray<double>> class_proba(xt::pyarray<int>& y,
 }
 
 
-xt::pyarray<double> cgbs(xt::pyarray<double>& x, xt::pyarray<int>& y, int& nfts) {
+std::tuple<int, double> cgbs(xt::pyarray<double>& x, xt::pyarray<int>& y,
+    int& nfts) {
     // finds best tree split wrt. gini based information gain
     // to be used in classification tasks
     int bestfeat = 0; 
@@ -140,7 +141,7 @@ xt::pyarray<double> cgbs(xt::pyarray<double>& x, xt::pyarray<int>& y, int& nfts)
         }
     }
 
-    xt::pyarray<double> params {(double)bestfeat, bestsplt};
+    std::tuple<int, double> params {bestfeat, bestsplt};
     return params;
 }
 
@@ -151,6 +152,6 @@ PYBIND11_MODULE(_core, m) {
     m.def("gini_impurity", &gini_impurity);
     m.def("entropy", &entropy);
     m.def("gini_information_gain", &gini_inf_gain);
-    m.def("get_class_and_proba", class_proba);
+    m.def("get_class_and_proba", &class_proba);
     m.def("classif_best_split", &cgbs);
 }
