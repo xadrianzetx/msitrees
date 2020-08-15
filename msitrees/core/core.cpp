@@ -5,6 +5,7 @@
 #include <xtensor/xtensor.hpp>
 #include <xtensor/xmath.hpp>
 #include <xtensor/xview.hpp>
+#include <xtensor/xpad.hpp>
 #include <xtensor/xhistogram.hpp>
 #include <xtensor/xindex_view.hpp>
 #include <xtensor-python/pyarray.hpp>
@@ -75,7 +76,11 @@ double gini_inf_gain(xt::pyarray<int>& left,
 }
 
 
-xt::pyarray<double> class_proba(xt::pyarray<int>& y) {
+std::tuple<int, xt::xarray<double>> class_proba(xt::pyarray<int>& y,
+    size_t n_classes) {
+    // assuming that labels are encoded as 0 to n_classes, select
+    // majority class in y and calculate array of probavilities
+    // of selecting item from any given class
     if (y.dimension() != 1)
         throw py::value_error("Expected array with dim 1 in class_proba");
 
@@ -84,8 +89,18 @@ xt::pyarray<double> class_proba(xt::pyarray<int>& y) {
 
     xt::xtensor<int, 1> counts = xt::bincount(y);
     int cls = *xt::argmax(counts).data();
-    double proba = counts(cls) / (double)y.shape(0);
-    xt::pyarray<double> params {(double)cls, proba};
+    xt::xarray<double> proba = counts / (double)y.shape(0);
+
+    if (proba.shape(0) < n_classes) {
+        // classes with labels greater than max(y) still need
+        // to be represented with probability of selecting item
+        // from this class eq 0
+        unsigned long long padlen = n_classes - proba.shape(0);
+        proba = xt::pad(proba, {0, padlen}, xt::pad_mode::constant, 0.0);
+    }
+
+    std::tuple<int, xt::xarray<double>> params;
+    params = {cls, proba};
 
     return params;
 }
