@@ -51,8 +51,8 @@ class MSINode:
         if self.y is not None:
             return 1
 
-        lcount = self.left._count_child_nodes()
-        rcount = self.right._count_child_nodes()
+        lcount = self.left._count_child_nodes() if self.left else 0
+        rcount = self.right._count_child_nodes() if self.right else 0
 
         return lcount + rcount + 1
 
