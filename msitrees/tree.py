@@ -62,8 +62,9 @@ class MSIDecisionTreeClassifier:
     def get_depth(self):
         pass
 
-    def get_n_leaves(self):
-        pass
+    def get_n_leaves(self) -> int:
+        '''Returns number of tree leaves'''
+        return self._root.count_tree_nodes(leaf_only=True)
 
     def fit(self):
         pass
