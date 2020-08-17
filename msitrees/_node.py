@@ -26,7 +26,7 @@ class MSINode:
         self.y = y
 
     def __repr__(self):
-        num_nodes = self._count_child_nodes()
+        num_nodes = self.count_tree_nodes(leaf_only=False)
         return 'Tree root/node with {} children'.format(num_nodes)
 
     def __str__(self):
@@ -47,14 +47,19 @@ class MSINode:
                 'right': node_right
             }
 
-    def _count_child_nodes(self) -> int:
+    def count_tree_nodes(self, leaf_only: bool) -> int:
+        """
+        Counts number of leaf nodes or total number
+        of nodes for current node.
+        """
         if self.y is not None:
             return 1
 
-        lcount = self.left._count_child_nodes() if self.left else 0
-        rcount = self.right._count_child_nodes() if self.right else 0
+        lcount = self.left.count_tree_nodes(leaf_only) if self.left else 0
+        rcount = self.right.count_tree_nodes(leaf_only) if self.right else 0
+        total = lcount + rcount
 
-        return lcount + rcount + 1
+        return total if leaf_only else total + 1
 
     def get_node_by_id(self, id: str) -> 'MSINode':
         if self.id == id:

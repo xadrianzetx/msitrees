@@ -83,7 +83,7 @@ class TestMSINode(unittest.TestCase):
         # cut left branch of the tree
         root.left = None
         expected = 2 ** (depth + 1) / 2
-        count = root._count_child_nodes()
+        count = root.count_tree_nodes(leaf_only=False)
         self.assertEqual(count, expected)
 
     def test_node_count(self):
@@ -91,7 +91,7 @@ class TestMSINode(unittest.TestCase):
         factory = MockupTreeFactory(depth)
         root = factory.build()
         expected = 2 ** (depth + 1) - 1
-        count = root._count_child_nodes()
+        count = root.count_tree_nodes(leaf_only=False)
         self.assertEqual(count, expected)
 
     def test_tree_representation(self):
