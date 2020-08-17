@@ -50,7 +50,18 @@ class MSINode:
     def count_tree_nodes(self, leaf_only: bool) -> int:
         """
         Counts number of leaf nodes or total number
-        of nodes for current node.
+        of child nodes for current node.
+
+        Params
+        ----------
+        leaf_only: bool
+            True if only leaf nodes are to be
+            counted, else all child nodes are.
+
+        Returns
+        ----------
+            int
+            Number of nodes
         """
         if self.y is not None:
             return 1
