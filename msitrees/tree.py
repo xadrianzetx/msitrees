@@ -8,6 +8,7 @@ class MSIDecisionTreeClassifier:
 
     def __init__(self):
         self._root = MSINode()
+        self._fitted = False
         self._n_classes = None
         self._x_shape = None
 
@@ -59,6 +60,10 @@ class MSIDecisionTreeClassifier:
     def _build_tree(self):
         pass
 
+    def _validate_before_predict(self, x):
+        # TODO check fitted flags and data shapes
+        pass
+
     def get_depth(self):
         pass
 
@@ -69,8 +74,68 @@ class MSIDecisionTreeClassifier:
     def fit(self):
         pass
 
-    def predict(self):
-        pass
+    def predict(self, x: np.ndarray) -> np.ndarray:
+        """
+        Predict class labels for input data X
 
-    def predict_proba(self):
-        pass
+        Params
+        ----------
+            x: np.array
+            Array of samples with shape (n_samples, n_features).
+            Class label is predicted for each sample.
+
+        Returns
+        ----------
+            np.array
+            Array with shape (n_samples, )
+            Class label prediction for each sample.
+        """
+        self._validate_before_predict(x)
+        pred = [self._root.predict(obs)[0] for obs in x]
+        return np.array(pred)
+
+    def predict_proba(self, x: np.ndarray) -> np.ndarray:
+        """
+        Predict class probability for input data X.
+        Probability is defined as fraction of class
+        label in a leaf.
+
+        Params
+        ----------
+            x: np.array
+            Array of samples with shape (n_samples, n_features).
+            Class probabilities are predicted for each sample.
+
+        Returns
+        ----------
+            np.array
+            Array with shape (n_samples, n_targets)
+            Array of probabilities. Each index corresponds to
+            class label and holds predicted porbability of this class.
+        """
+        self._validate_before_predict(x)
+        pred = [self._root.predict(obs)[1] for obs in x]
+        return np.array(pred)
+
+    def predict_log_proba(self, x: np.ndarray) -> np.ndarray:
+        """
+        Predict class log probability for input data X.
+        Probability is defined as fraction of class
+        label in a leaf.
+
+        Params
+        ----------
+            x: np.array
+            Array of samples with shape (n_samples, n_features).
+            Class log probabilities are predicted for each sample.
+
+        Returns
+        ----------
+            np.array
+            Array with shape (n_samples, n_targets)
+            Array of log probabilities. Each index corresponds to
+            class label and holds predicted log porbability of this class.
+        """
+        probas = self.predict_proba(x)
+        logprob = [np.log(p) for p in probas]
+        return np.array(logprob)
