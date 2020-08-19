@@ -137,6 +137,12 @@ class TestMSINode(unittest.TestCase):
         self.assertIsNone(node.feature)
         self.assertIsNone(node.proba)
 
+    def test_node_set_split_criteria(self):
+        node = MSINode()
+        node.set_split_criteria(1, 0.5)
+        self.assertEqual(node.feature, 1)
+        self.assertEqual(node.split, 0.5)
+
 
 if __name__ == "__main__":
     unittest.main()
