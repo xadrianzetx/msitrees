@@ -53,6 +53,11 @@ class MSINode:
         for attr in attrs:
             setattr(self, attr, None)
 
+    def set_split_criteria(self, feature: int, split: float) -> None:
+        """Sets feature idx and split point"""
+        self.feature = feature
+        self.split = split
+
     def count_tree_nodes(self, leaf_only: bool) -> int:
         """
         Counts number of leaf nodes or total number
