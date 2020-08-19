@@ -47,6 +47,12 @@ class MSINode:
                 'right': node_right
             }
 
+    def reset(self) -> None:
+        """Resets all node attributes to None, except id"""
+        attrs = [k for k in self.__dict__.keys() if k != 'id']
+        for attr in attrs:
+            setattr(self, attr, None)
+
     def count_tree_nodes(self, leaf_only: bool) -> int:
         """
         Counts number of leaf nodes or total number
