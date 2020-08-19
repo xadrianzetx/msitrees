@@ -124,6 +124,19 @@ class TestMSINode(unittest.TestCase):
         self.assertEqual(root.predict(x[0])[0], y[0])
         self.assertEqual(root.predict(x[1])[0], y[1])
 
+    def test_node_reset_id_preserved(self):
+        node = MSINode()
+        id = node.id
+        node.reset()
+        self.assertEqual(node.id, id)
+
+    def test_node_reset(self):
+        node = MSINode(y=1, feature=1, proba=0.5)
+        node.reset()
+        self.assertIsNone(node.y)
+        self.assertIsNone(node.feature)
+        self.assertIsNone(node.proba)
+
 
 if __name__ == "__main__":
     unittest.main()
