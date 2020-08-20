@@ -106,11 +106,13 @@ std::tuple<int, xt::xarray<double>> class_proba(xt::pyarray<int>& y,
     return params;
 }
 
+using triplet = std::tuple<int, double, bool>;
 
-std::tuple<int, double> cgbs(xt::pyarray<double>& x, xt::pyarray<int>& y,
+triplet cgbs(xt::pyarray<double>& x, xt::pyarray<int>& y,
     int& nfts) {
     // finds best tree split wrt. gini based information gain
     // to be used in classification tasks
+    bool valid = false;
     int bestfeat = 0; 
     double bestsplt = 0.0;
     double maxgain = -std::numeric_limits<double>::infinity();
@@ -135,6 +137,7 @@ std::tuple<int, double> cgbs(xt::pyarray<double>& x, xt::pyarray<int>& y,
             double gain = gini_inf_gain(left, right, y);
 
             if (gain > maxgain) {
+                valid = true;
                 maxgain = gain;
                 bestfeat = i;
                 bestsplt = lvl;
@@ -142,7 +145,7 @@ std::tuple<int, double> cgbs(xt::pyarray<double>& x, xt::pyarray<int>& y,
         }
     }
 
-    std::tuple<int, double> params {bestfeat, bestsplt};
+    triplet params {bestfeat, bestsplt, valid};
     return params;
 }
 
