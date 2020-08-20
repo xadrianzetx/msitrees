@@ -6,6 +6,7 @@
 #include <xtensor/xmath.hpp>
 #include <xtensor/xview.hpp>
 #include <xtensor/xpad.hpp>
+#include <xtensor/xadapt.hpp>
 #include <xtensor/xhistogram.hpp>
 #include <xtensor/xindex_view.hpp>
 #include <xtensor-python/pyarray.hpp>
@@ -145,6 +146,22 @@ std::tuple<int, double> cgbs(xt::pyarray<double>& x, xt::pyarray<int>& y,
     return params;
 }
 
+using idxpair = std::tuple<xt::xarray<int>, xt::xarray<int>>;
+
+idxpair split_indices(xt::pyarray<double>& x, 
+    std::tuple<int, double>& params, int& nfts) {
+    // split indices into left and right subtree
+    // based on optimal split point
+    int feat = std::get<0>(params);
+    float split = std::get<1>(params);
+    xt::xtensor<double, 1> col = (nfts != 1) ? xt::view(x, xt::all(), feat) : x;
+    std::vector<size_t> idxl = *xt::where(col < split).data();
+    std::vector<size_t> idxr = *xt::where(col >= split).data();
+    idxpair indices {xt::adapt(idxl), xt::adapt(idxr)};
+
+    return indices;
+}
+
 
 PYBIND11_MODULE(_core, m) {
     xt::import_numpy();
@@ -154,4 +171,5 @@ PYBIND11_MODULE(_core, m) {
     m.def("gini_information_gain", &gini_inf_gain);
     m.def("get_class_and_proba", &class_proba);
     m.def("classif_best_split", &cgbs);
+    m.def("split_indices", &split_indices);
 }
