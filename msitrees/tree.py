@@ -10,6 +10,7 @@ class MSIDecisionTreeClassifier:
         self._root = MSINode()
         self._fitted = False
         self._ncls = None
+        self._ndim = None
         self._x_shape = None
 
     @property
@@ -69,8 +70,14 @@ class MSIDecisionTreeClassifier:
         return cost
 
     def _get_indices(self, x: np.ndarray, feature: int, split: float) -> tuple:
-        idx_left = np.where(x[:, feature] < split)[0]
-        idx_right = np.where(x[:, feature] >= split)[0]
+        """Returns new dataset indices wrt. best split"""
+        if self._ndim == 2:
+            idx_left = np.where(x[:, feature] < split)[0]
+            idx_right = np.where(x[:, feature] >= split)[0]
+
+        else:
+            idx_left = np.where(x < split)[0]
+            idx_right = np.where(x >= split)[0]
 
         return idx_left, idx_right
 
@@ -87,9 +94,7 @@ class MSIDecisionTreeClassifier:
 
             for cand in candidates:
                 node = self._root.get_node_by_id(cand)
-                # TODO no support for 1 dim set
-                sub_x = x[node.indices, :]
-                sub_y = y[node.indices]
+                sub_x, sub_y = x[node.indices], y[node.indices]
                 criteria, valid = self._get_best_split(sub_x, sub_y)
 
                 if not valid:
