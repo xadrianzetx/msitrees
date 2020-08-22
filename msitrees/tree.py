@@ -9,9 +9,9 @@ class MSIDecisionTreeClassifier:
     def __init__(self):
         self._root = MSINode()
         self._fitted = False
+        self._shape = None
         self._ncls = None
         self._ndim = None
-        self._x_shape = None
 
     @property
     def feature_importances(self):
@@ -24,7 +24,7 @@ class MSIDecisionTreeClassifier:
 
     def _get_best_split(self, x: np.ndarray, y: np.ndarray) -> tuple:
         """Wraps classif_best_split call"""
-        nfeats = self._x_shape[1] if self._ndim == 2 else 1
+        nfeats = self._shape[1] if self._ndim == 2 else 1
         *criteria, valid = core.classif_best_split(x, y, nfeats)
         named_criteria = {'feature': criteria[0], 'split': criteria[1]}
         return named_criteria, valid
@@ -59,7 +59,7 @@ class MSIDecisionTreeClassifier:
         # model error to [0, 1])
         y_pred = self.predict(x)
         hits = sum(y == y_pred)
-        iacc = 1 - (hits / self._x_shape[0])
+        iacc = 1 - (hits / self._shape[0])
 
         if redu < iacc:
             # discard initial underfitted
@@ -133,9 +133,8 @@ class MSIDecisionTreeClassifier:
                 candidates.extend([node.left.id, node.right.id])
 
             else:
+                # no more candidates to check
                 break
-
-        return self
 
     def _validate_before_predict(self, x):
         # TODO check fitted flags and data shapes
