@@ -9,12 +9,23 @@ class MSIDecisionTreeClassifier:
     def __init__(self):
         self._root = MSINode()
         self._fitted = False
-        self._n_classes = None
+        self._ncls = None
         self._x_shape = None
 
     @property
     def feature_importances(self):
         pass
+
+    def _get_class_and_proba(self, y: np.ndarray) -> dict:
+        """Wraps get_class_and_proba call"""
+        label, proba = core.get_class_and_proba(y, self._ncls)
+        return {'y': label, 'proba': proba}
+
+    def _get_best_split(self, x: np.ndarray, y: np.ndarray) -> tuple:
+        """Wraps classif_best_split call"""
+        *criteria, valid = core.classif_best_split(x, y, self._x_shape[1])
+        named_criteria = {'feature': criteria[0], 'split': criteria[1]}
+        return named_criteria, valid
 
     def _calculate_cost(self, x: np.ndarray, y: np.ndarray) -> float:
         """
@@ -57,8 +68,68 @@ class MSIDecisionTreeClassifier:
 
         return cost
 
-    def _build_tree(self):
-        pass
+    def _get_indices(self, x: np.ndarray, feature: int, split: float) -> tuple:
+        idx_left = np.where(x[:, feature] < split)[0]
+        idx_right = np.where(x[:, feature] >= split)[0]
+
+        return idx_left, idx_right
+
+    def _build_tree(self, x: np.ndarray, y: np.ndarray):
+        """
+        tree builder - initial
+        """
+        min_cost = np.inf
+        self._root.indices = np.arange(x.shape[0])
+        candidates = [self._root.id]
+
+        while True:
+            best_cand = None
+
+            for cand in candidates:
+                node = self._root.get_node_by_id(cand)
+                # TODO no support for 1 dim set
+                sub_x = x[node.indices, :]
+                sub_y = y[node.indices]
+                criteria, valid = self._get_best_split(sub_x, sub_y)
+
+                if not valid:
+                    continue
+
+                idx_left, idx_right = self._get_indices(sub_x, **criteria)
+                cp_left = self._get_class_and_proba(sub_y[idx_left])
+                cp_right = self._get_class_and_proba(sub_y[idx_right])
+                bkp = MSINode(y=node.y, proba=node.proba, indices=node.indices)
+
+                node.reset()
+                node.left = MSINode(**cp_left)
+                node.right = MSINode(**cp_right)
+                node.set_split_criteria(**criteria)
+                cost = self._calculate_cost(x, y)
+
+                if cost < min_cost:
+                    min_cost = cost
+                    best_cand = node.id
+                    data_left = {'indices': bkp.indices[idx_left], **cp_left}
+                    data_right = {'indices': bkp.indices[idx_right], **cp_right}
+
+                node.reset()
+                node.indices = bkp.indices
+                node.y = bkp.y
+                node.proba = bkp.proba
+
+            if best_cand:
+                node = self._root.get_node_by_id(best_cand)
+                node.reset()
+                node.set_split_criteria(**criteria)
+                node.left = MSINode(**data_left)
+                node.right = MSINode(**data_right)
+                candidates.remove(best_cand)
+                candidates.extend([node.left.id, node.right.id])
+
+            else:
+                break
+
+        return self
 
     def _validate_before_predict(self, x):
         # TODO check fitted flags and data shapes
