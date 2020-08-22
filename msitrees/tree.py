@@ -24,7 +24,8 @@ class MSIDecisionTreeClassifier:
 
     def _get_best_split(self, x: np.ndarray, y: np.ndarray) -> tuple:
         """Wraps classif_best_split call"""
-        *criteria, valid = core.classif_best_split(x, y, self._x_shape[1])
+        nfeats = self._x_shape[1] if self._ndim == 2 else 1
+        *criteria, valid = core.classif_best_split(x, y, nfeats)
         named_criteria = {'feature': criteria[0], 'split': criteria[1]}
         return named_criteria, valid
 
