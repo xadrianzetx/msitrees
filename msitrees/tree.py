@@ -57,7 +57,7 @@ class MSIDecisionTreeClassifier:
         # faster to calculate and should work with eg. MAPE
         # for regression tasks (or just about anything that maps
         # model error to [0, 1])
-        y_pred = self.predict(x)
+        y_pred = self._predict_in_training(x)
         hits = sum(y == y_pred)
         iacc = 1 - (hits / self._shape[0])
 
@@ -152,6 +152,16 @@ class MSIDecisionTreeClassifier:
     def fit(self):
         pass
 
+    def _predict_in_training(self, x: np.ndarray) -> np.ndarray:
+        """
+        Predict class labels for input data X
+
+        Overrides input validation and should be used
+        only inside cost function.
+        """
+        pred = [self._root.predict(obs)[0] for obs in x]
+        return np.array(pred)
+
     def predict(self, x: np.ndarray) -> np.ndarray:
         """
         Predict class labels for input data X
@@ -169,8 +179,8 @@ class MSIDecisionTreeClassifier:
             Class label prediction for each sample.
         """
         self._validate_before_predict(x)
-        pred = [self._root.predict(obs)[0] for obs in x]
-        return np.array(pred)
+        pred = self._predict_in_training(x)
+        return pred
 
     def predict_proba(self, x: np.ndarray) -> np.ndarray:
         """
