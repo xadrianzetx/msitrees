@@ -148,6 +148,7 @@ class MSIDecisionTreeClassifier:
                 if cost < min_cost:
                     min_cost = cost
                     best_cand = node.id
+                    best_criteria = criteria
                     data_left = {'indices': bkp.indices[idx_left], **cp_left}
                     data_right = {'indices': bkp.indices[idx_right], **cp_right}
 
@@ -161,7 +162,7 @@ class MSIDecisionTreeClassifier:
                 # grow permanent branches on best split criteria
                 node = self._root.get_node_by_id(best_cand)
                 node.reset()
-                node.set_split_criteria(**criteria)
+                node.set_split_criteria(**best_criteria)
                 node.left = MSINode(**data_left)
                 node.right = MSINode(**data_right)
                 candidates.remove(best_cand)
@@ -199,7 +200,7 @@ class MSIDecisionTreeClassifier:
             raise ValueError('')
 
         # TODO check target categories!
-        self._ncls = max(np.unique(y))
+        self._ncls = np.unique(y)[-1]
         self._shape = x.shape
         self._ndim = x.ndim
         self._build_tree(x, y)
