@@ -18,7 +18,7 @@ class MSIDecisionTreeClassifier:
 
     @property
     def feature_importances(self):
-        pass
+        raise NotImplementedError
 
     def _get_class_and_proba(self, y: np.ndarray) -> dict:
         """Wraps get_class_and_proba call"""
@@ -177,7 +177,7 @@ class MSIDecisionTreeClassifier:
         pass
 
     def get_depth(self):
-        pass
+        raise NotImplementedError
 
     def get_n_leaves(self) -> int:
         '''Returns number of tree leaves'''
