@@ -84,13 +84,38 @@ class MSIDecisionTreeClassifier:
 
     def _build_tree(self, x: np.ndarray, y: np.ndarray):
         """
-        tree builder - initial
+        Builds MSI classification tree
+
+        Based on breadth-first tree traversal, this algorithm
+        tries to perform new split for each candidate node
+        (one that is not a leaf) one by one, and keeps split
+        which decreases overall cost function. New nodes created with this
+        operation are added to candidate pool. Split points are estimated
+        with gini based information gain. Training ends when any new split
+        would only add nedless complexity to the tree.
+
+        References
+        ----------
+        [1] https://www.cs.bu.edu/teaching/c/tree/breadth-first/
+        [2] https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=8767915
+
+        Params
+        ----------
+            x: np.ndarray
+            Training data
+
+            y: np.ndarray
+            Targets
         """
         min_cost = np.inf
         self._root.indices = np.arange(x.shape[0])
         candidates = [self._root.id]
 
         while True:
+            # tree builder concludes at the point
+            # where creating new node from current
+            # candidates does not bring decrease in
+            # cost function
             best_cand = None
 
             for cand in candidates:
@@ -99,6 +124,9 @@ class MSIDecisionTreeClassifier:
                 criteria, valid = self._get_best_split(sub_x, sub_y)
 
                 if not valid:
+                    # best split would only
+                    # populate one branch, so its
+                    # pointless
                     continue
 
                 idx_left, idx_right = self._get_indices(sub_x, **criteria)
@@ -106,6 +134,8 @@ class MSIDecisionTreeClassifier:
                 cp_right = self._get_class_and_proba(sub_y[idx_right])
                 bkp = MSINode(y=node.y, proba=node.proba, indices=node.indices)
 
+                # grow candidate branch
+                # and calculate its cost
                 node.reset()
                 node.left = MSINode(**cp_left)
                 node.right = MSINode(**cp_right)
@@ -118,12 +148,14 @@ class MSIDecisionTreeClassifier:
                     data_left = {'indices': bkp.indices[idx_left], **cp_left}
                     data_right = {'indices': bkp.indices[idx_right], **cp_right}
 
+                # revert node to original state
                 node.reset()
                 node.indices = bkp.indices
                 node.y = bkp.y
                 node.proba = bkp.proba
 
             if best_cand:
+                # grow permanent branches on best split criteria
                 node = self._root.get_node_by_id(best_cand)
                 node.reset()
                 node.set_split_criteria(**criteria)
