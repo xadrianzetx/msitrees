@@ -1,5 +1,8 @@
 import bz2
 import numpy as np
+import pandas as pd
+from typing import Union
+
 import msitrees._core as core
 from msitrees._node import MSINode
 
@@ -92,7 +95,7 @@ class MSIDecisionTreeClassifier:
         which decreases overall cost function. New nodes created with this
         operation are added to candidate pool. Split points are estimated
         with gini based information gain. Training ends when any new split
-        would only add nedless complexity to the tree.
+        would only add needless complexity to the tree.
 
         References
         ----------
@@ -181,8 +184,28 @@ class MSIDecisionTreeClassifier:
             return self._root.count_tree_nodes(leaf_only=True)
         return 0
 
-    def fit(self):
-        pass
+    def fit(self, x: Union[np.ndarray, pd.DataFrame],
+            y: Union[np.ndarray, pd.Series]) -> 'MSIDecisionTreeClassifier':
+        """
+        TODO docs are important!
+        """
+        if isinstance(x, pd.DataFrame):
+            x = x.values
+
+        if isinstance(y, pd.Series):
+            y = y.values
+
+        if x.ndim > 2:
+            raise ValueError('')
+
+        # TODO check target categories!
+        self._ncls = max(np.unique(y))
+        self._shape = x.shape
+        self._ndim = x.ndim
+        self._build_tree(x, y)
+        self._fitted = True
+
+        return self
 
     def _predict_in_training(self, x: np.ndarray) -> np.ndarray:
         """
