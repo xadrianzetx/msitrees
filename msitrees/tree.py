@@ -185,21 +185,40 @@ class MSIDecisionTreeClassifier:
             return self._root.count_tree_nodes(leaf_only=True)
         return 0
 
-    def fit(self, x: Union[np.ndarray, pd.DataFrame],
+    def fit(self, x: Union[np.ndarray, pd.DataFrame, pd.Series],
             y: Union[np.ndarray, pd.Series]) -> 'MSIDecisionTreeClassifier':
         """
         TODO docs are important!
         """
-        if isinstance(x, pd.DataFrame):
+        allowed_types = (
+            np.ndarray,
+            pd.core.frame.DataFrame,
+            pd.core.frame.Series
+        )
+
+        if type(x) not in allowed_types or type(y) not in allowed_types:
+            raise TypeError('Supported input types: np.ndarray, '
+                            'pd.core.frame.DataFrame, pd.core.frame.Series got'
+                            ' {} for x and {} for y'.format(type(x), type(y)))
+
+        if x.size == 0 or y.size == 0:
+            raise ValueError('Empty array passed to fit(), sizes are '
+                             '{} for x and {} for y'.format(x.size, y.size))
+
+        if isinstance(x, pd.DataFrame) or isinstance(x, pd.Series):
             x = x.values
 
         if isinstance(y, pd.Series):
             y = y.values
 
-        if x.ndim > 2:
-            raise ValueError('')
+        if x.ndim > 2 or y.ndim > 1:
+            raise ValueError('Data with incorrect number of dimensions '
+                             'passed to fit(). Max dim for x is 2, got '
+                             '{}. Max dim for y is 1, got {}'
+                             .format(x.ndim, y.ndim))
 
         # TODO check target categories!
+        # TODO cast X to float!
         self._ncls = np.unique(y)[-1]
         self._shape = x.shape
         self._ndim = x.ndim
