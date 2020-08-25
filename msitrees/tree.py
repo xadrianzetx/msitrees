@@ -205,6 +205,10 @@ class MSIDecisionTreeClassifier:
             raise ValueError('Empty array passed to fit(), sizes are '
                              '{} for x and {} for y'.format(x.size, y.size))
 
+        if x.shape[0] != y.shape[0]:
+            raise ValueError('Cannot match arrays with shapes '
+                             '{} and {}'.format(x.shape, y.shape))
+
         if isinstance(x, pd.DataFrame) or isinstance(x, pd.Series):
             x = x.values
 
@@ -217,12 +221,29 @@ class MSIDecisionTreeClassifier:
                              '{}. Max dim for y is 1, got {}'
                              .format(x.ndim, y.ndim))
 
+        if not np.issubdtype(x.dtype, np.number):
+            raise ValueError('Non numeric value found in X')
+
+        if not np.issubdtype(y.dtype, np.number):
+            raise ValueError('Non numeric value found in y')
+
         if not np.isfinite(x).all() or not np.isfinite(y).all():
             raise ValueError('Data contains nan or inf')
 
-        # TODO check target categories!
-        # TODO cast X to float!
-        self._ncls = np.unique(y)[-1]
+        # check if class labels are
+        # label encoded from 0 to N
+        if y.min() > 0:
+            raise ValueError('Class labels should start from 0')
+
+        classes = np.unique(y)
+        self._ncls = len(classes)
+
+        # check if classes go in sequence by one
+        if self._ncls != max(classes) + 1:
+            raise ValueError('Y is mislabeled')
+
+        x = x.astype(np.float)
+        y = y.astype(np.int)
         self._shape = x.shape
         self._ndim = x.ndim
         self._build_tree(x, y)
