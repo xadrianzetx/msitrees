@@ -103,27 +103,90 @@ class TestMSIDecisionTreeClassifier(unittest.TestCase):
             tree.fit(x, y)
 
     def test_x_not_numeric(self):
-        # one of x features is not numeric
-        pass
+        x = np.array(['1', '2', '3'])
+        y = np.zeros(10)
+        tree = MSIDecisionTreeClassifier()
+
+        with self.assertRaises(ValueError):
+            tree.fit(x, y)
 
     def test_y_not_numeric(self):
-        pass
+        x = np.zeros((10, 10))
+        y = np.array(['1', '2', '3'])
+        tree = MSIDecisionTreeClassifier()
+
+        with self.assertRaises(ValueError):
+            tree.fit(x, y)
 
     def test_x_has_nan(self):
-        # data has nans
-        pass
+        x = np.zeros((10, 10))
+        y = np.zeros(10)
+        x[0, 0] = np.nan
+        tree = MSIDecisionTreeClassifier()
+
+        with self.assertRaises(ValueError):
+            tree.fit(x, y)
 
     def test_y_has_nan(self):
-        pass
+        x = np.zeros((10, 10))
+        y = np.zeros(10)
+        y[0] = np.nan
+        tree = MSIDecisionTreeClassifier()
+
+        with self.assertRaises(ValueError):
+            tree.fit(x, y)
+
+    def test_x_has_infinite(self):
+        x = np.zeros((10, 10))
+        y = np.zeros(10)
+        x[0, 0] = np.inf
+        tree = MSIDecisionTreeClassifier()
+
+        with self.assertRaises(ValueError):
+            tree.fit(x, y)
+
+        x[0, 0] = -np.inf
+
+        with self.assertRaises(ValueError):
+            tree.fit(x, y)
+
+    def test_y_has_infinite(self):
+        x = np.zeros((10, 10))
+        y = np.zeros(10)
+        y[0] = np.inf
+        tree = MSIDecisionTreeClassifier()
+
+        with self.assertRaises(ValueError):
+            tree.fit(x, y)
+
+        y[0] = -np.inf
+
+        with self.assertRaises(ValueError):
+            tree.fit(x, y)
 
     def test_input_y_starts_1(self):
-        # classes are label encoded but go
-        # from 1 to N instead from 0
-        pass
+        x = np.zeros((3, 3))
+        y = np.array([1, 2, 3])
+        tree = MSIDecisionTreeClassifier()
+
+        with self.assertRaises(ValueError):
+            tree.fit(x, y)
 
     def test_input_y_classes_not_in_series(self):
-        # classes go from 0 to N but with gaps inbetween
-        pass
+        x = np.zeros((3, 3))
+        y = np.array([0, 1, 3])
+        tree = MSIDecisionTreeClassifier()
+
+        with self.assertRaises(ValueError):
+            tree.fit(x, y)
+
+    def test_data_equal_length(self):
+        x = np.zeros((10, 10))
+        y = np.zeros((9, ))
+        tree = MSIDecisionTreeClassifier()
+
+        with self.assertRaises(ValueError):
+            tree.fit(x, y)
 
     def test_fit_xor(self):
         # test if this can fit something at all
