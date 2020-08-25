@@ -217,6 +217,9 @@ class MSIDecisionTreeClassifier:
                              '{}. Max dim for y is 1, got {}'
                              .format(x.ndim, y.ndim))
 
+        if not np.isfinite(x).all() or not np.isfinite(y).all():
+            raise ValueError('Data contains nan or inf')
+
         # TODO check target categories!
         # TODO cast X to float!
         self._ncls = np.unique(y)[-1]
