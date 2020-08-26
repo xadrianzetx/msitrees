@@ -283,7 +283,140 @@ class TestMSIDecisionTreeClassifier(unittest.TestCase):
         self.assertAlmostEqual(acc, 0.97368, places=4)
         self.assertEqual(nl, 4)
 
-    # TODO test predict methods
+
+class TestMSIDecisionTreeClassifierPredict(unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        data = load_iris()
+        cls.clf = MSIDecisionTreeClassifier()
+        cls.clf.fit(data['data'], data['target'])
+
+    def test_predict_proba_dim(self):
+        data = load_iris()
+        probas = TestMSIDecisionTreeClassifierPredict.clf.predict_proba(data['data'])
+        classes = np.unique(data['target'])
+        self.assertEqual(probas.shape[1], len(classes))
+
+    def test_predict_wrong_dim(self):
+        x = np.array([[[1], [1], [1]]])
+        model = TestMSIDecisionTreeClassifierPredict.clf
+
+        with self.assertRaises(ValueError):
+            model.predict(x)
+
+    def test_predict_proba_wrong_dim(self):
+        x = np.array([[[1], [1], [1]]])
+        model = TestMSIDecisionTreeClassifierPredict.clf
+
+        with self.assertRaises(ValueError):
+            model.predict_proba(x)
+
+    def test_predict_empty(self):
+        x = np.array([[]])
+        model = TestMSIDecisionTreeClassifierPredict.clf
+
+        with self.assertRaises(ValueError):
+            model.predict(x)
+
+    def test_predict_proba_empty(self):
+        x = np.array([[]])
+        model = TestMSIDecisionTreeClassifierPredict.clf
+
+        with self.assertRaises(ValueError):
+            model.predict_proba(x)
+
+    def test_predict_type_not_supported(self):
+        x = 'foo'
+        model = TestMSIDecisionTreeClassifierPredict.clf
+
+        with self.assertRaises(TypeError):
+            model.predict(x)
+
+    def test_predict_proba_type_not_supported(self):
+        x = 'foo'
+        model = TestMSIDecisionTreeClassifierPredict.clf
+
+        with self.assertRaises(TypeError):
+            model.predict_proba(x)
+
+    def test_predict_not_numeric(self):
+        x = np.array([['1', '2', '3', '4']])
+        model = TestMSIDecisionTreeClassifierPredict.clf
+
+        with self.assertRaises(ValueError):
+            model.predict(x)
+
+    def test_predict_proba_not_numeric(self):
+        x = np.array([['1', '2', '3', '4']])
+        model = TestMSIDecisionTreeClassifierPredict.clf
+
+        with self.assertRaises(ValueError):
+            model.predict_proba(x)
+
+    def test_predict_has_nan(self):
+        x = np.array([[1, 2, 3, np.nan]])
+        model = TestMSIDecisionTreeClassifierPredict.clf
+
+        with self.assertRaises(ValueError):
+            model.predict(x)
+
+    def test_predict_proba_has_nan(self):
+        x = np.array([[1, 2, 3, np.nan]])
+        model = TestMSIDecisionTreeClassifierPredict.clf
+
+        with self.assertRaises(ValueError):
+            model.predict_proba(x)
+
+    def test_predict_has_infinite(self):
+        x = np.array([[1, 2, 3, np.inf]])
+        model = TestMSIDecisionTreeClassifierPredict.clf
+
+        with self.assertRaises(ValueError):
+            model.predict(x)
+
+        x = np.array([[1, 2, 3, -np.inf]])
+
+        with self.assertRaises(ValueError):
+            model.predict(x)
+
+    def test_predict_proba_has_infinite(self):
+        x = np.array([[1, 2, 3, np.inf]])
+        model = TestMSIDecisionTreeClassifierPredict.clf
+
+        with self.assertRaises(ValueError):
+            model.predict_proba(x)
+
+        x = np.array([[1, 2, 3, -np.inf]])
+
+        with self.assertRaises(ValueError):
+            model.predict_proba(x)
+
+    def test_predict_tree_not_fitted(self):
+        model = MSIDecisionTreeClassifier()
+        with self.assertRaises(ValueError):
+            model.predict(np.array([[1, 2]]))
+
+    def test_predict_proba_tree_not_fited(self):
+        model = MSIDecisionTreeClassifier()
+        with self.assertRaises(ValueError):
+            model.predict_proba(np.array([[1, 2]]))
+
+    def test_predict_nfeats_drift(self):
+        # inference on different number
+        # of feats than training
+        x = np.array([[1, 2, 3]])
+        model = TestMSIDecisionTreeClassifierPredict.clf
+
+        with self.assertRaises(ValueError):
+            model.predict(x)
+
+    def test_predict_proba_nfeats_drift(self):
+        x = np.array([[1, 2, 3]])
+        model = TestMSIDecisionTreeClassifierPredict.clf
+
+        with self.assertRaises(ValueError):
+            model.predict_proba(x)
 
 
 if __name__ == "__main__":
