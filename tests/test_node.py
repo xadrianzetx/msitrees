@@ -124,6 +124,20 @@ class TestMSINode(unittest.TestCase):
         self.assertEqual(root.predict(x[0])[0], y[0])
         self.assertEqual(root.predict(x[1])[0], y[1])
 
+    def test_one_dim_tree_traversal(self):
+        x = np.array([0, 1])
+        y = np.array([0, 1])
+        factory = MockupTreeFactory(1)
+        root = factory.build()
+
+        root.split = 1.
+        root.feature = 0
+        root.left.y = 0
+        root.right.y = 1
+
+        self.assertEqual(root.predict(x[0])[0], y[0])
+        self.assertEqual(root.predict(x[1])[0], y[1])
+
     def test_node_reset_id_preserved(self):
         node = MSINode()
         id = node.id
