@@ -96,7 +96,9 @@ class MSINode:
         if self.y is not None:
             return (self.y, self.proba)
 
-        if x[self.feature] < self.split:
+        testpt = x if np.isscalar(x) else x[self.feature]
+
+        if testpt < self.split:
             pred = self.left.predict(x)
 
         else:
