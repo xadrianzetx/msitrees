@@ -1,7 +1,12 @@
 import unittest
 import numpy as np
+import pandas as pd
 from msitrees._node import MSINode
 from msitrees.tree import MSIDecisionTreeClassifier
+
+from sklearn.datasets import load_iris, load_breast_cancer
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
 
 
 class TestMSIDecisionTreeClassifier(unittest.TestCase):
@@ -189,26 +194,94 @@ class TestMSIDecisionTreeClassifier(unittest.TestCase):
             tree.fit(x, y)
 
     def test_fit_xor(self):
-        # test if this can fit something at all
-        pass
+        x = np.array(
+            [[1, 0],
+             [0, 1],
+             [0, 0],
+             [1, 1]]
+        )
+        y = np.array([1, 1, 0, 0])
+        tree = MSIDecisionTreeClassifier()
+        tree.fit(x, y)
+        pred = tree.predict(x)
+        acc = sum(pred == y) / len(y)
+        nl = tree.get_n_leaves()
+        self.assertEqual(acc, 1.0)
+        self.assertEqual(nl, 4)
 
     def test_fit_onedim(self):
-        # test fit to one dimensional x
-        pass
+        data = load_iris()
+        x_train, x_valid, y_train, y_valid = train_test_split(
+            data['data'], data['target'], random_state=42)
+        x_train = x_train[:, :2]
+        x_valid = x_valid[:, :2]
+        tree = MSIDecisionTreeClassifier()
+        tree.fit(x_train, y_train)
+        pred = tree.predict(x_valid)
+        acc = accuracy_score(y_valid, pred)
+        self.assertGreater(acc, 0.5)
 
     def test_fit_bc(self):
-        # test fit on binary
-        pass
+        '''Test fit on binary dataset'''
+        data = load_breast_cancer()
+        x_train, x_val, y_train, y_val = train_test_split(
+            data['data'], data['target'],
+            random_state=42
+        )
+        tree = MSIDecisionTreeClassifier()
+        tree.fit(x_train, y_train)
+        pred = tree.predict(x_val)
+        acc = accuracy_score(y_val, pred)
+        nl = tree.get_n_leaves()
+        self.assertAlmostEqual(acc, 0.95104, places=4)
+        self.assertEqual(nl, 12)
 
     def test_fit_iris(self):
-        # test fit on multiclass problem
-        pass
+        """Test fit on multiclass dataset"""
+        data = load_iris()
+        x_train, x_val, y_train, y_val = train_test_split(
+            data['data'], data['target'],
+            random_state=42
+        )
+        tree = MSIDecisionTreeClassifier()
+        tree.fit(x_train, y_train)
+        pred = tree.predict(x_val)
+        acc = accuracy_score(y_val, pred)
+        nl = tree.get_n_leaves()
+        self.assertAlmostEqual(acc, 0.97368, places=4)
+        self.assertEqual(nl, 4)
 
     def test_fit_bc_pandas(self):
-        pass
+        data = load_breast_cancer()
+        x_train, x_val, y_train, y_val = train_test_split(
+            data['data'], data['target'],
+            random_state=42
+        )
+        x_train = pd.DataFrame(x_train)
+        y_train = pd.Series(y_train)
+        tree = MSIDecisionTreeClassifier()
+        tree.fit(x_train, y_train)
+        pred = tree.predict(x_val)
+        acc = accuracy_score(y_val, pred)
+        nl = tree.get_n_leaves()
+        self.assertAlmostEqual(acc, 0.95104, places=4)
+        self.assertEqual(nl, 12)
 
     def test_fit_iris_pandas(self):
-        pass
+        data = load_iris()
+        x_train, x_val, y_train, y_val = train_test_split(
+            data['data'], data['target'],
+            random_state=42
+        )
+        x_train = pd.DataFrame(x_train)
+        y_train = pd.Series(y_train)
+        tree = MSIDecisionTreeClassifier()
+        tree.fit(x_train, y_train)
+        pred = tree.predict(x_val)
+        acc = accuracy_score(y_val, pred)
+        nl = tree.get_n_leaves()
+        self.assertAlmostEqual(acc, 0.97368, places=4)
+        self.assertEqual(nl, 4)
 
     # TODO test predict methods
 
