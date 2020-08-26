@@ -172,9 +172,38 @@ class MSIDecisionTreeClassifier:
                 # no more candidates to check
                 break
 
-    def _validate_before_predict(self, x):
-        # TODO check fitted flags and data shapes
-        pass
+    def _validate_input(self, df: Union[np.ndarray, pd.DataFrame, pd.Series],
+                        expected_dim: int) -> np.ndarray:
+        """Honeypot for incorrect input spec"""
+        allowed_types = (
+            np.ndarray,
+            pd.core.frame.DataFrame,
+            pd.core.frame.Series
+        )
+
+        if type(df) not in allowed_types:
+            raise TypeError('Supported input types: np.ndarray, '
+                            'pd.core.frame.DataFrame, pd.core.frame.Series got'
+                            ' {}'.format(type(df)))
+
+        if isinstance(df, pd.DataFrame) or isinstance(df, pd.Series):
+            df = df.values
+
+        if df.size == 0:
+            raise ValueError('Empty array passed to fit() or predict()')
+
+        if df.ndim > expected_dim:
+            raise ValueError('Data with incorrect number of dimensions '
+                             'passed to fit() or predict(). Max dim is '
+                             '{}, got {}'.format(expected_dim, df.ndim))
+
+        if not np.issubdtype(df.dtype, np.number):
+            raise ValueError('Non numeric value found in data')
+
+        if not np.isfinite(df).all():
+            raise ValueError('Data contains nan or inf')
+
+        return df
 
     def get_depth(self):
         raise NotImplementedError
@@ -190,45 +219,12 @@ class MSIDecisionTreeClassifier:
         """
         TODO docs are important!
         """
-        allowed_types = (
-            np.ndarray,
-            pd.core.frame.DataFrame,
-            pd.core.frame.Series
-        )
-
-        if type(x) not in allowed_types or type(y) not in allowed_types:
-            raise TypeError('Supported input types: np.ndarray, '
-                            'pd.core.frame.DataFrame, pd.core.frame.Series got'
-                            ' {} for x and {} for y'.format(type(x), type(y)))
-
-        if x.size == 0 or y.size == 0:
-            raise ValueError('Empty array passed to fit(), sizes are '
-                             '{} for x and {} for y'.format(x.size, y.size))
+        x = self._validate_input(x, expected_dim=2)
+        y = self._validate_input(y, expected_dim=1)
 
         if x.shape[0] != y.shape[0]:
             raise ValueError('Cannot match arrays with shapes '
                              '{} and {}'.format(x.shape, y.shape))
-
-        if isinstance(x, pd.DataFrame) or isinstance(x, pd.Series):
-            x = x.values
-
-        if isinstance(y, pd.Series):
-            y = y.values
-
-        if x.ndim > 2 or y.ndim > 1:
-            raise ValueError('Data with incorrect number of dimensions '
-                             'passed to fit(). Max dim for x is 2, got '
-                             '{}. Max dim for y is 1, got {}'
-                             .format(x.ndim, y.ndim))
-
-        if not np.issubdtype(x.dtype, np.number):
-            raise ValueError('Non numeric value found in X')
-
-        if not np.issubdtype(y.dtype, np.number):
-            raise ValueError('Non numeric value found in y')
-
-        if not np.isfinite(x).all() or not np.isfinite(y).all():
-            raise ValueError('Data contains nan or inf')
 
         # check if class labels are
         # label encoded from 0 to N
@@ -277,7 +273,7 @@ class MSIDecisionTreeClassifier:
             Array with shape (n_samples, )
             Class label prediction for each sample.
         """
-        self._validate_before_predict(x)
+        self._validate_input(x, expected_dim=2)
         pred = self._predict_in_training(x)
         return pred
 
@@ -300,7 +296,7 @@ class MSIDecisionTreeClassifier:
             Array of probabilities. Each index corresponds to
             class label and holds predicted porbability of this class.
         """
-        self._validate_before_predict(x)
+        self._validate_input(x, expected_dim=2)
         pred = [self._root.predict(obs)[1] for obs in x]
         return np.array(pred)
 
