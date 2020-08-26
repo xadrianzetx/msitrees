@@ -172,8 +172,8 @@ class MSIDecisionTreeClassifier:
                 # no more candidates to check
                 break
 
-    def _validate_input(self, df: Union[np.ndarray, pd.DataFrame, pd.Series],
-                        expected_dim: int) -> np.ndarray:
+    def _validate_input(self, data: Union[np.ndarray, pd.DataFrame, pd.Series],
+                        expected_dim: int, inference: bool = False) -> np.ndarray:
         """Honeypot for incorrect input spec"""
         allowed_types = (
             np.ndarray,
@@ -181,29 +181,40 @@ class MSIDecisionTreeClassifier:
             pd.core.frame.Series
         )
 
-        if type(df) not in allowed_types:
+        if type(data) not in allowed_types:
             raise TypeError('Supported input types: np.ndarray, '
                             'pd.core.frame.DataFrame, pd.core.frame.Series got'
-                            ' {}'.format(type(df)))
+                            ' {}'.format(type(data)))
 
-        if isinstance(df, pd.DataFrame) or isinstance(df, pd.Series):
-            df = df.values
+        if isinstance(data, pd.DataFrame) or isinstance(data, pd.Series):
+            data = data.values
 
-        if df.size == 0:
+        if data.size == 0:
             raise ValueError('Empty array passed to fit() or predict()')
 
-        if df.ndim > expected_dim:
+        if data.ndim > expected_dim:
             raise ValueError('Data with incorrect number of dimensions '
                              'passed to fit() or predict(). Max dim is '
-                             '{}, got {}'.format(expected_dim, df.ndim))
+                             '{}, got {}'.format(expected_dim, data.ndim))
 
-        if not np.issubdtype(df.dtype, np.number):
+        if not np.issubdtype(data.dtype, np.number):
             raise ValueError('Non numeric value found in data')
 
-        if not np.isfinite(df).all():
+        if not np.isfinite(data).all():
             raise ValueError('Data contains nan or inf')
 
-        return df
+        if inference:
+            # additional checks on prediction time
+            if not self._fitted:
+                raise ValueError('Fit the model first.')
+
+            if self._ndim == 2 and data.shape[-1] != self._shape[-1]:
+                raise ValueError('Number of features does not match'
+                                 ' data model was trained on. Expected'
+                                 ' {}, got {}'
+                                 .format(self._shape[-1], data.shape[-1]))
+
+        return data
 
     def get_depth(self):
         raise NotImplementedError
@@ -273,7 +284,7 @@ class MSIDecisionTreeClassifier:
             Array with shape (n_samples, )
             Class label prediction for each sample.
         """
-        self._validate_input(x, expected_dim=2)
+        self._validate_input(x, expected_dim=2, inference=True)
         pred = self._predict_in_training(x)
         return pred
 
@@ -296,7 +307,7 @@ class MSIDecisionTreeClassifier:
             Array of probabilities. Each index corresponds to
             class label and holds predicted porbability of this class.
         """
-        self._validate_input(x, expected_dim=2)
+        self._validate_input(x, expected_dim=2, inference=True)
         pred = [self._root.predict(obs)[1] for obs in x]
         return np.array(pred)
 
