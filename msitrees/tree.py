@@ -69,7 +69,7 @@ class MSIDecisionTreeClassifier:
             # tree candidates
             redu = 1
 
-        cost = 2 / ((1 / redu) + (1 / iacc))
+        cost = 2 / ((1 / redu) + (1 / (iacc + 1e-100)))
 
         return cost
 
