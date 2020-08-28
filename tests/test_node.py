@@ -8,12 +8,15 @@ class MockupTreeFactory:
     def __init__(self, depth, prune=False):
         self.ids = []
         self.depth = depth
+        self.max_depth = 0
         self.prune = prune
 
     def _add_node(self, d):
         if d == self.depth:
             node = MSINode(y=0)
             self.ids.append(node.id)
+            if d > self.max_depth:
+                self.max_depth = d
             return node
 
         prune = [False, False]
@@ -32,6 +35,8 @@ class MockupTreeFactory:
 
         node = MSINode(left=lchild, right=rchild)
         self.ids.append(node.id)
+        if d > self.max_depth:
+            self.max_depth = d
 
         return node
 
@@ -93,6 +98,20 @@ class TestMSINode(unittest.TestCase):
         expected = 2 ** (depth + 1) - 1
         count = root.count_tree_nodes(leaf_only=False)
         self.assertEqual(count, expected)
+
+    def test_tree_depth(self):
+        depth = 10
+        factory = MockupTreeFactory(depth)
+        root = factory.build()
+        maxdepth = root.count_nodes_to_bottom()
+        self.assertEqual(maxdepth - 1, factory.max_depth)
+
+    def test_tree_depth_pruned(self):
+        depth = 10
+        factory = MockupTreeFactory(depth, prune=True)
+        root = factory.build()
+        maxdepth = root.count_nodes_to_bottom()
+        self.assertEqual(maxdepth - 1, factory.max_depth)
 
     def test_tree_representation(self):
         expected = {
