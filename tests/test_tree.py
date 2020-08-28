@@ -206,8 +206,10 @@ class TestMSIDecisionTreeClassifier(unittest.TestCase):
         pred = tree.predict(x)
         acc = sum(pred == y) / len(y)
         nl = tree.get_n_leaves()
+        depth = tree.get_depth()
         self.assertEqual(acc, 1.0)
         self.assertEqual(nl, 4)
+        self.assertEqual(depth, 2)
 
     def test_fit_onedim(self):
         data = load_iris()
