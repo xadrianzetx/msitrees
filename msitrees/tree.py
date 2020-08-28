@@ -217,7 +217,10 @@ class MSIDecisionTreeClassifier:
         return data
 
     def get_depth(self):
-        raise NotImplementedError
+        """Returns decision tree depth"""
+        if self._fitted:
+            return self._root.count_nodes_to_bottom() - 1
+        return 0
 
     def get_n_leaves(self) -> int:
         '''Returns number of tree leaves'''
