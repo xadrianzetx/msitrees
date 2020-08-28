@@ -83,6 +83,24 @@ class MSINode:
 
         return total if leaf_only else total + 1
 
+    def count_nodes_to_bottom(self) -> int:
+        """
+        Return total depth of a tree including current
+        node.
+
+        Returns
+        ----------
+            int
+            Maximum depth of tree
+        """
+        if self.y is not None:
+            return 1
+
+        lcount = self.left.count_nodes_to_bottom() if self.left else 0
+        rcount = self.right.count_nodes_to_bottom() if self.right else 0
+
+        return max([lcount, rcount]) + 1
+
     def get_node_by_id(self, id: str) -> 'MSINode':
         if self.id == id:
             return self
