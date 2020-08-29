@@ -15,10 +15,13 @@ class MSIDecisionTreeClassifier:
         self._shape = None
         self._ncls = None
         self._ndim = None
+        self._importances = None
 
     @property
-    def feature_importances(self):
-        raise NotImplementedError
+    def feature_importances_(self):
+        if self._fitted:
+            return self._importances / sum(self._importances)
+        return np.array([])
 
     def _get_class_and_proba(self, y: np.ndarray) -> dict:
         """Wraps get_class_and_proba call"""
@@ -28,9 +31,11 @@ class MSIDecisionTreeClassifier:
     def _get_best_split(self, x: np.ndarray, y: np.ndarray) -> tuple:
         """Wraps classif_best_split call"""
         nfeats = self._shape[1] if self._ndim == 2 else 1
-        *criteria, valid = core.classif_best_split(x, y, nfeats)
+        *criteria, importance, valid = core.classif_best_split(
+            x, y, nfeats, self._shape[0])
         named_criteria = {'feature': criteria[0], 'split': criteria[1]}
-        return named_criteria, valid
+
+        return named_criteria, valid, importance
 
     def _calculate_cost(self, x: np.ndarray, y: np.ndarray) -> float:
         """
@@ -124,7 +129,7 @@ class MSIDecisionTreeClassifier:
             for cand in candidates:
                 node = self._root.get_node_by_id(cand)
                 sub_x, sub_y = x[node.indices], y[node.indices]
-                criteria, valid = self._get_best_split(sub_x, sub_y)
+                criteria, valid, importance = self._get_best_split(sub_x, sub_y)
 
                 if not valid:
                     # best split would only
@@ -149,6 +154,7 @@ class MSIDecisionTreeClassifier:
                     min_cost = cost
                     best_cand = node.id
                     best_criteria = criteria
+                    best_importance = importance
                     data_left = {'indices': bkp.indices[idx_left], **cp_left}
                     data_right = {'indices': bkp.indices[idx_right], **cp_right}
 
@@ -165,6 +171,7 @@ class MSIDecisionTreeClassifier:
                 node.set_split_criteria(**best_criteria)
                 node.left = MSINode(**data_left)
                 node.right = MSINode(**data_right)
+                self._importances[best_criteria['feature']] += best_importance
                 candidates.remove(best_cand)
                 candidates.extend([node.left.id, node.right.id])
 
@@ -256,6 +263,13 @@ class MSIDecisionTreeClassifier:
         y = y.astype(np.int)
         self._shape = x.shape
         self._ndim = x.ndim
+
+        if x.ndim == 2:
+            self._importances = np.zeros(shape=(x.shape[1], ))
+
+        else:
+            self._importances = np.zeros(shape=(1, ))
+
         self._build_tree(x, y)
         self._fitted = True
 
