@@ -235,47 +235,52 @@ class TestGiniInformationGain(unittest.TestCase):
         yr = np.array([1, 1])
         yall = np.array([0, 0, 1, 1])
 
-        gain = gini_information_gain(yl, yr, yall)
+        gain, imp = gini_information_gain(yl, yr, yall)
         self.assertAlmostEqual(gain, 0.5)
+        self.assertAlmostEqual(imp, 0.5)
 
     def test_binary_noisy_split(self):
         yl = np.array([0, 1])
         yr = np.array([1, 0])
         yall = np.array([0, 0, 1, 1])
 
-        gain = gini_information_gain(yl, yr, yall)
+        gain, imp = gini_information_gain(yl, yr, yall)
         self.assertAlmostEqual(gain, 0.0)
+        self.assertAlmostEqual(imp, 0.5)
 
     def test_binary_uneven_split(self):
         yl = np.array([0, 0])
         yr = np.array([1, 1, 1])
         yall = np.array([0, 0, 1, 1, 1])
 
-        gain = gini_information_gain(yl, yr, yall)
+        gain, imp = gini_information_gain(yl, yr, yall)
         self.assertAlmostEqual(gain, 0.48)
+        self.assertAlmostEqual(imp, 0.48)
 
     def test_multiclass_perfect_split(self):
         yl = np.array([1, 1])
         yr = np.array([2, 2])
         yall = np.array([2, 2, 1, 1])
 
-        gain = gini_information_gain(yl, yr, yall)
+        gain, imp = gini_information_gain(yl, yr, yall)
         self.assertAlmostEqual(gain, 0.5)
+        self.assertAlmostEqual(imp, 0.5)
 
     def test_multiclass_noisy_split(self):
         yl = np.array([2, 1])
         yr = np.array([1, 2])
         yall = np.array([2, 2, 1, 1])
 
-        gain = gini_information_gain(yl, yr, yall)
+        gain, imp = gini_information_gain(yl, yr, yall)
         self.assertAlmostEqual(gain, 0.0)
+        self.assertAlmostEqual(imp, 0.5)
 
     def test_multiclass_uneven_split(self):
         yl = np.array([1, 1])
         yr = np.array([2, 2, 3])
         yall = np.array([2, 2, 1, 1, 3])
 
-        gain = gini_information_gain(yl, yr, yall)
+        gain, _ = gini_information_gain(yl, yr, yall)
         self.assertAlmostEqual(gain, 0.3733, places=4)
 
 
@@ -412,7 +417,7 @@ class TestClassifBestSplit(unittest.TestCase):
         y = np.array([1, 0])
 
         try:
-            classif_best_split(x, y, 2)
+            classif_best_split(x, y, 2, 2)
 
         except TypeError:
             self.fail('Exception on allowed data type')
@@ -422,7 +427,7 @@ class TestClassifBestSplit(unittest.TestCase):
         y = np.array([1, 0])
 
         try:
-            classif_best_split(x, y, 2)
+            classif_best_split(x, y, 2, 2)
 
         except TypeError:
             self.fail('Exception on allowed data type')
@@ -432,7 +437,7 @@ class TestClassifBestSplit(unittest.TestCase):
         y = [1, 0]
 
         try:
-            classif_best_split(x, y, 2)
+            classif_best_split(x, y, 2, 2)
 
         except TypeError:
             self.fail('Exception on allowed data type')
@@ -442,7 +447,7 @@ class TestClassifBestSplit(unittest.TestCase):
         y = [1, 0]
 
         try:
-            classif_best_split(x, y, 2)
+            classif_best_split(x, y, 2, 2)
 
         except TypeError:
             self.fail('Exception on allowed data type')
@@ -450,7 +455,7 @@ class TestClassifBestSplit(unittest.TestCase):
     def test_x_one_dim_binary(self):
         x = np.array([1., 0.])
         y = np.array([1, 0])
-        feature, value, valid = classif_best_split(x, y, 1)
+        feature, value, _, valid = classif_best_split(x, y, 1, 2)
         self.assertEqual(int(feature), 0)
         self.assertEqual(value, 1.)
         self.assertTrue(valid)
@@ -459,7 +464,7 @@ class TestClassifBestSplit(unittest.TestCase):
         """Best split is on feature 0"""
         x = np.array([[1., 0., 0.], [0., 0., 0.]])
         y = np.array([1, 0])
-        feature, value, _ = classif_best_split(x, y, 3)
+        feature, value, _, _ = classif_best_split(x, y, 3, 2)
         self.assertEqual(int(feature), 0)
         self.assertEqual(value, 1.)
 
@@ -467,7 +472,7 @@ class TestClassifBestSplit(unittest.TestCase):
         """Best split is on feature N"""
         x = np.array([[0., 0., 1], [0., 0., 0]])
         y = np.array([1, 0])
-        feature, value, _ = classif_best_split(x, y, 3)
+        feature, value, _, _ = classif_best_split(x, y, 3, 2)
         self.assertEqual(int(feature), 2)
         self.assertEqual(value, 1.)
 
@@ -478,7 +483,7 @@ class TestClassifBestSplit(unittest.TestCase):
         """
         x = np.array([1., 1.])
         y = np.array([0, 0])
-        feature, value, valid = classif_best_split(x, y, 1)
+        feature, value, _, valid = classif_best_split(x, y, 1, 2)
         self.assertEqual(int(feature), 0)
         self.assertEqual(value, 0.)
         self.assertFalse(valid)
@@ -486,7 +491,7 @@ class TestClassifBestSplit(unittest.TestCase):
     def test_one_dim_multicls(self):
         x = np.array([1., 1., 0., 0.])
         y = np.array([1, 1, 2, 2])
-        feature, value, valid = classif_best_split(x, y, 1)
+        feature, value, _, valid = classif_best_split(x, y, 1, 4)
         self.assertEqual(int(feature), 0)
         self.assertEqual(value, 1.)
         self.assertTrue(valid)
@@ -495,7 +500,7 @@ class TestClassifBestSplit(unittest.TestCase):
         """Best split is on feature 0"""
         x = np.array([[1., 0., 0.], [0., 0., 0.]])
         y = np.array([1, 2])
-        feature, value, _ = classif_best_split(x, y, 3)
+        feature, value, _, _ = classif_best_split(x, y, 3, 2)
         self.assertEqual(int(feature), 0)
         self.assertEqual(value, 1.)
 
@@ -503,14 +508,14 @@ class TestClassifBestSplit(unittest.TestCase):
         """Best split is on feature N"""
         x = np.array([[0., 0., 1], [0., 0., 0]])
         y = np.array([1, 2])
-        feature, value, _ = classif_best_split(x, y, 3)
+        feature, value, _, _ = classif_best_split(x, y, 3, 2)
         self.assertEqual(int(feature), 2)
         self.assertEqual(value, 1.)
 
     def test_node_empty_multicls(self):
         x = np.array([1., 1.])
         y = np.array([2, 2])
-        feature, value, valid = classif_best_split(x, y, 1)
+        feature, value, _, valid = classif_best_split(x, y, 1, 2)
         self.assertEqual(int(feature), 0)
         self.assertEqual(value, 0.)
         self.assertFalse(valid)
@@ -523,13 +528,16 @@ class TestClassifBestSplit(unittest.TestCase):
         """
         data = load_breast_cancer()
         nfeats = data['data'].shape[1]
-        feature, value, _ = classif_best_split(
+        nobs = data['data'].shape[0]
+        feature, value, importance, _ = classif_best_split(
             data['data'],
             data['target'],
-            nfeats
+            nfeats,
+            nobs
         )
         self.assertEqual(int(feature), 20)
         self.assertAlmostEqual(value, 16.82)
+        self.assertAlmostEqual(importance, 0.398062, places=5)
 
     def test_firstsplit_iris(self):
         """
@@ -539,13 +547,16 @@ class TestClassifBestSplit(unittest.TestCase):
         """
         data = load_iris()
         nfeats = data['data'].shape[1]
-        feature, value, _ = classif_best_split(
+        nobs = data['data'].shape[0]
+        feature, value, importance, _ = classif_best_split(
             data['data'],
             data['target'],
-            nfeats
+            nfeats,
+            nobs
         )
         self.assertEqual(int(feature), 2)
         self.assertAlmostEqual(value, 3.0)
+        self.assertAlmostEqual(importance, 1.0)
 
 
 if __name__ == "__main__":
