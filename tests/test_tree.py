@@ -207,9 +207,12 @@ class TestMSIDecisionTreeClassifier(unittest.TestCase):
         acc = sum(pred == y) / len(y)
         nl = tree.get_n_leaves()
         depth = tree.get_depth()
+        importances = tree.feature_importances_
         self.assertEqual(acc, 1.0)
         self.assertEqual(nl, 4)
         self.assertEqual(depth, 2)
+        self.assertEqual(sum(importances), 1.0)
+        np.testing.assert_allclose(importances, np.array([1., 0.]))
 
     def test_fit_onedim(self):
         data = load_iris()
@@ -235,8 +238,10 @@ class TestMSIDecisionTreeClassifier(unittest.TestCase):
         pred = tree.predict(x_val)
         acc = accuracy_score(y_val, pred)
         nl = tree.get_n_leaves()
+        importances = tree.feature_importances_
         self.assertAlmostEqual(acc, 0.95104, places=4)
         self.assertEqual(nl, 12)
+        self.assertEqual(sum(importances), 1.0)
 
     def test_fit_iris(self):
         """Test fit on multiclass dataset"""
@@ -250,8 +255,10 @@ class TestMSIDecisionTreeClassifier(unittest.TestCase):
         pred = tree.predict(x_val)
         acc = accuracy_score(y_val, pred)
         nl = tree.get_n_leaves()
+        importances = tree.feature_importances_
         self.assertAlmostEqual(acc, 0.97368, places=4)
         self.assertEqual(nl, 4)
+        self.assertEqual(sum(importances), 1.0)
 
     def test_fit_bc_pandas(self):
         data = load_breast_cancer()
@@ -266,8 +273,10 @@ class TestMSIDecisionTreeClassifier(unittest.TestCase):
         pred = tree.predict(x_val)
         acc = accuracy_score(y_val, pred)
         nl = tree.get_n_leaves()
+        importances = tree.feature_importances_
         self.assertAlmostEqual(acc, 0.95104, places=4)
         self.assertEqual(nl, 12)
+        self.assertEqual(sum(importances), 1.0)
 
     def test_fit_iris_pandas(self):
         data = load_iris()
@@ -282,8 +291,10 @@ class TestMSIDecisionTreeClassifier(unittest.TestCase):
         pred = tree.predict(x_val)
         acc = accuracy_score(y_val, pred)
         nl = tree.get_n_leaves()
+        importances = tree.feature_importances_
         self.assertAlmostEqual(acc, 0.97368, places=4)
         self.assertEqual(nl, 4)
+        self.assertEqual(sum(importances), 1.0)
 
 
 class TestMSIDecisionTreeClassifierPredict(unittest.TestCase):
