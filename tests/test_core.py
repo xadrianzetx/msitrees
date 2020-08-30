@@ -532,7 +532,7 @@ class TestClassifBestSplit(unittest.TestCase):
         )
         self.assertEqual(int(feature), 20)
         self.assertAlmostEqual(value, 16.82)
-        self.assertAlmostEqual(importance, 0.398062, places=5)
+        self.assertAlmostEqual(importance, 0.32521, places=5)
 
     def test_firstsplit_iris(self):
         """
@@ -551,7 +551,7 @@ class TestClassifBestSplit(unittest.TestCase):
         )
         self.assertEqual(int(feature), 2)
         self.assertAlmostEqual(value, 3.0)
-        self.assertAlmostEqual(importance, 1.0)
+        self.assertAlmostEqual(importance, 0.3333, places=3)
 
 
 if __name__ == "__main__":
