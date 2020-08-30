@@ -235,52 +235,47 @@ class TestGiniInformationGain(unittest.TestCase):
         yr = np.array([1, 1])
         yall = np.array([0, 0, 1, 1])
 
-        gain, imp = gini_information_gain(yl, yr, yall)
+        gain = gini_information_gain(yl, yr, yall)
         self.assertAlmostEqual(gain, 0.5)
-        self.assertAlmostEqual(imp, 0.5)
 
     def test_binary_noisy_split(self):
         yl = np.array([0, 1])
         yr = np.array([1, 0])
         yall = np.array([0, 0, 1, 1])
 
-        gain, imp = gini_information_gain(yl, yr, yall)
+        gain = gini_information_gain(yl, yr, yall)
         self.assertAlmostEqual(gain, 0.0)
-        self.assertAlmostEqual(imp, 0.5)
 
     def test_binary_uneven_split(self):
         yl = np.array([0, 0])
         yr = np.array([1, 1, 1])
         yall = np.array([0, 0, 1, 1, 1])
 
-        gain, imp = gini_information_gain(yl, yr, yall)
+        gain = gini_information_gain(yl, yr, yall)
         self.assertAlmostEqual(gain, 0.48)
-        self.assertAlmostEqual(imp, 0.48)
 
     def test_multiclass_perfect_split(self):
         yl = np.array([1, 1])
         yr = np.array([2, 2])
         yall = np.array([2, 2, 1, 1])
 
-        gain, imp = gini_information_gain(yl, yr, yall)
+        gain = gini_information_gain(yl, yr, yall)
         self.assertAlmostEqual(gain, 0.5)
-        self.assertAlmostEqual(imp, 0.5)
 
     def test_multiclass_noisy_split(self):
         yl = np.array([2, 1])
         yr = np.array([1, 2])
         yall = np.array([2, 2, 1, 1])
 
-        gain, imp = gini_information_gain(yl, yr, yall)
+        gain = gini_information_gain(yl, yr, yall)
         self.assertAlmostEqual(gain, 0.0)
-        self.assertAlmostEqual(imp, 0.5)
 
     def test_multiclass_uneven_split(self):
         yl = np.array([1, 1])
         yr = np.array([2, 2, 3])
         yall = np.array([2, 2, 1, 1, 3])
 
-        gain, _ = gini_information_gain(yl, yr, yall)
+        gain = gini_information_gain(yl, yr, yall)
         self.assertAlmostEqual(gain, 0.3733, places=4)
 
 
