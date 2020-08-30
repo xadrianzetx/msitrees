@@ -106,16 +106,18 @@ std::tuple<int, xt::xarray<double>> class_proba(xt::pyarray<int>& y,
     return params;
 }
 
-using triplet = std::tuple<int, double, bool>;
+using quad = std::tuple<int, double, double, bool>;
 
-triplet cgbs(xt::pyarray<double>& x, xt::pyarray<int>& y,
-    int& nfts) {
+quad cgbs(xt::pyarray<double>& x, xt::pyarray<int>& y,
+    int& nfts, int& nobs) {
     // finds best tree split wrt. gini based information gain
     // to be used in classification tasks
     bool valid = false;
     int bestfeat = 0; 
     double bestsplt = 0.0;
+    double importance = 0.0;
     double maxgain = -std::numeric_limits<double>::infinity();
+    size_t ylen = y.shape(0);
 
     for (int i = 0; i < nfts; i++) {
         xt::xtensor<double, 1> col = (nfts != 1) ? xt::view(x, xt::all(), i) : x;
@@ -133,7 +135,7 @@ triplet cgbs(xt::pyarray<double>& x, xt::pyarray<int>& y,
                 // left node - can skip this one
                 continue;
             }
-
+            
             double gain = gini_inf_gain(left, right, y);
 
             if (gain > maxgain) {
@@ -141,11 +143,12 @@ triplet cgbs(xt::pyarray<double>& x, xt::pyarray<int>& y,
                 maxgain = gain;
                 bestfeat = i;
                 bestsplt = lvl;
+                importance = (ylen / (double)nobs) * gain;
             }
         }
     }
 
-    triplet params {bestfeat, bestsplt, valid};
+    quad params {bestfeat, bestsplt, importance, valid};
     return params;
 }
 
