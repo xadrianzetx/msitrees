@@ -212,7 +212,7 @@ class TestMSIDecisionTreeClassifier(unittest.TestCase):
         self.assertEqual(nl, 4)
         self.assertEqual(depth, 2)
         self.assertEqual(sum(importances), 1.0)
-        np.testing.assert_allclose(importances, np.array([1., 0.]))
+        np.testing.assert_allclose(importances, np.array([0., 1.]))
 
     def test_fit_onedim(self):
         data = load_iris()
