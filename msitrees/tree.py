@@ -19,6 +19,20 @@ class MSIDecisionTreeClassifier:
 
     @property
     def feature_importances_(self):
+        """
+        Returns feature importances
+
+        Feature importance at each node is specified
+        as weighted gini based information gain. Feature
+        importance for each feature is normalized sum of
+        importances at nodes where split was made
+        on particular feature.
+
+        Returns
+        ----------
+            np.ndarray
+            Normalized array of feature importances
+        """
         if self._fitted:
             return self._importances / sum(self._importances)
         return np.array([])
