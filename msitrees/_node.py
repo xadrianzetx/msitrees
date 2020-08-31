@@ -5,6 +5,53 @@ from typing import Optional
 
 
 class MSINode:
+    """A fundamental building block of MSI tree.
+
+    Parameters
+    ----------
+    left : MSINode, default=None
+        Left branch of the node. Can be another
+        decision node or leaf node. If either
+        left or right branch is None, then node
+        is treated as leaf node.
+
+    right : MSINode, default=None
+        Right branch of the node. Can be another
+        decision node or leaf node. If either
+        left or right branch is None, then node
+        is treated as leaf node.
+
+    indices : list, default=None
+        List of indices indicating subset
+        of data used to perform split whithin
+        a node.
+
+    feature : int, default=None
+        Index of a feature on which optimal
+        split was performed.
+
+    split : float, default=None
+        Feature value on which optimal
+        split was performed.
+
+    proba : float, default=None
+        Probability of predicted class label.
+        Calculated as ratio of majority class
+        label to all labels present in a node.
+
+    y : int, default=None
+        Predicted class label. Calculated as
+        majority label within a node.
+
+    Attributes
+    ----------
+    id : str
+        Unique node id.
+
+    Notes
+    -----
+    For internal use only.
+    """
 
     def __init__(self, left: Optional['MSINode'] = None,
                  right: Optional['MSINode'] = None,
@@ -13,9 +60,6 @@ class MSINode:
                  split: Optional[float] = None,
                  proba: Optional[np.ndarray] = None,
                  y: Optional[int] = None):
-        """
-        MSINode
-        """
         self.id = uuid.uuid4().hex
         self.left = left
         self.right = right
@@ -34,6 +78,7 @@ class MSINode:
         return json.dumps(r)
 
     def _get_tree_structure(self) -> dict:
+        """Recursively builds dict tree representation"""
         if self.y is not None:
             return {'leaf': self.y}
 
@@ -54,26 +99,39 @@ class MSINode:
             setattr(self, attr, None)
 
     def set_split_criteria(self, feature: int, split: float) -> None:
-        """Sets feature idx and split point"""
+        """Sets feature index and split point.
+
+        Parameters
+        ----------
+        feature : int
+            Index of a feature on which optimal
+            split was performed.
+
+        split : float
+            Feature value on which optimal
+            split was performed
+        """
+
         self.feature = feature
         self.split = split
 
     def count_tree_nodes(self, leaf_only: bool) -> int:
-        """
-        Counts number of leaf nodes or total number
+        """Counts number of leaf nodes or total number
         of child nodes for current node.
 
-        Params
+        Parameters
         ----------
-        leaf_only: bool
-            True if only leaf nodes are to be
-            counted, else all child nodes are.
+        leaf_only : bool
+            When true only leaf nodes are counted,
+            otherwise both decision nodes and leaf
+            nodes are.
 
         Returns
-        ----------
-            int
+        -------
+        total : int
             Number of nodes
         """
+
         if self.y is not None:
             return 1
 
@@ -84,15 +142,15 @@ class MSINode:
         return total if leaf_only else total + 1
 
     def count_nodes_to_bottom(self) -> int:
-        """
-        Return total depth of a tree including current
-        node.
+        """Return total depth of a tree including
+        current node.
 
         Returns
-        ----------
-            int
+        -------
+        count : int
             Maximum depth of tree
         """
+
         if self.y is not None:
             return 1
 
@@ -102,6 +160,20 @@ class MSINode:
         return max([lcount, rcount]) + 1
 
     def get_node_by_id(self, id: str) -> 'MSINode':
+        """Retrieves node with specified id.
+
+        Parameters
+        ----------
+        id : str
+            Node id.
+
+        Returns
+        -------
+        node : MSINode
+            Node with specified id. If such node
+            does not exist, then returns None
+        """
+
         if self.id == id:
             return self
 
@@ -111,6 +183,17 @@ class MSINode:
         return ncl or ncr
 
     def predict(self, x: np.ndarray) -> tuple:
+        """Predicts class label and probability
+        for input x.
+
+        Returns
+        -------
+        pred : tuple
+            Tuple with predicted values for input.
+            Position 0 is class label, position 1
+            is class probability.
+        """
+
         if self.y is not None:
             return (self.y, self.proba)
 
