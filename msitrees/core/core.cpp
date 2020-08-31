@@ -80,7 +80,7 @@ double gini_inf_gain(xt::pyarray<int>& left,
 std::tuple<int, xt::xarray<double>> class_proba(xt::pyarray<int>& y,
     size_t& n_classes) {
     // assuming that labels are encoded as 0 to n_classes, select
-    // majority class in y and calculate array of probavilities
+    // majority class in y and calculate array of probabilities
     // of selecting item from any given class
     if (y.dimension() != 1)
         throw py::value_error("Expected array with dim 1 in class_proba");
