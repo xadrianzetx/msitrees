@@ -377,6 +377,7 @@ class MSIDecisionTreeClassifier:
         """
 
         self._validate_input(x, expected_dim=2, inference=True)
+        self._validate_input(y, expected_dim=1)
         pred = self._predict_in_training(x)
         mean_acc = sum(pred == y) / len(y)
 
