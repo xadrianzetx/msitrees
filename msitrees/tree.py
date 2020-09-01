@@ -339,6 +339,30 @@ class MSIDecisionTreeClassifier:
         pred = [self._root.predict(obs)[0] for obs in x]
         return np.array(pred)
 
+    def score(self, x: np.ndarray, y: np.ndarray) -> np.ndarray:
+        """Predicts from X and computes accuracy score wrt. y
+
+        Parameters
+        ----------
+        x : np.ndarray
+            Array of samples with shape (n_samples, n_features).
+            Class label is predicted for each sample.
+
+        y : np.ndarray
+            Array of ground truth labels.
+
+        Returns
+        -------
+        mean_acc : float
+            Accuracy score for predicted class labels.
+        """
+
+        self._validate_input(x, expected_dim=2, inference=True)
+        pred = self._predict_in_training(x)
+        mean_acc = sum(pred == y) / len(y)
+
+        return mean_acc
+
     def predict(self, x: np.ndarray) -> np.ndarray:
         """Predicts class labels for input data X
 
@@ -403,3 +427,11 @@ class MSIDecisionTreeClassifier:
         probas = self.predict_proba(x)
         logprob = [np.log(p) for p in probas]
         return np.array(logprob)
+
+    def get_params(self, deep: bool = True):
+        """scikit-learn API compatibility"""
+        return {}
+
+    def set_params(self, **params: dict):
+        """scikit-learn API compatibility"""
+        return self
