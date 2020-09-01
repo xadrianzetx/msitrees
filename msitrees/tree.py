@@ -92,6 +92,7 @@ class MSIDecisionTreeClassifier:
         importances : np.ndarray
             Normalized array of feature importances.
         """
+
         if self._fitted:
             return self._importances / sum(self._importances)
         return np.array([])
@@ -269,6 +270,7 @@ class MSIDecisionTreeClassifier:
         depth : int
             Maximum depth of fitted decision tree.
         """
+
         if self._fitted:
             return self._root.count_nodes_to_bottom() - 1
         return 0
@@ -281,21 +283,34 @@ class MSIDecisionTreeClassifier:
         num_leaves : int
             Number of leaf nodes in fitted tree.
         '''
+
         if self._fitted:
             return self._root.count_tree_nodes(leaf_only=True)
         return 0
 
     def fit(self, x: Union[np.ndarray, pd.DataFrame, pd.Series],
             y: Union[np.ndarray, pd.Series]) -> 'MSIDecisionTreeClassifier':
-        """
-        Params
-        ------
-        x: np.ndarray
-            Training data
+        """Fits decision tree from training dataset.
+
+        Parameters
+        ----------
+        x : np.ndarray
+            Training data of shape (n_samples, n_features)
+            or (n_samples, ). All values have to be numerical,
+            so perform any required encoding before calling this
+            method.
 
         y: np.ndarray
-            Targets
+            Ground truth data of shape (n_samples, ). All values
+            have to be numerical, so perform any required encoding
+            before calling this method.
+
+        Returns
+        -------
+        self : MSIDecisionTreeClassifier
+            Fitted estimator.
         """
+
         x = self._validate_input(x, expected_dim=2)
         y = self._validate_input(y, expected_dim=1)
 
@@ -339,6 +354,7 @@ class MSIDecisionTreeClassifier:
         Overrides input validation and should be used
         only inside cost function.
         """
+
         pred = [self._root.predict(obs)[0] for obs in x]
         return np.array(pred)
 
@@ -381,6 +397,7 @@ class MSIDecisionTreeClassifier:
             Array with shape (n_samples, )
             Class label prediction for each sample.
         """
+
         self._validate_input(x, expected_dim=2, inference=True)
         pred = self._predict_in_training(x)
         return pred
@@ -404,6 +421,7 @@ class MSIDecisionTreeClassifier:
             Array of probabilities. Each index corresponds to
             class label and holds predicted porbability of this class.
         """
+
         self._validate_input(x, expected_dim=2, inference=True)
         pred = [self._root.predict(obs)[1] for obs in x]
         return np.array(pred)
@@ -427,6 +445,7 @@ class MSIDecisionTreeClassifier:
             Array of log probabilities. Each index corresponds to
             class label and holds predicted log porbability of this class.
         """
+
         probas = self.predict_proba(x)
         logprob = [np.log(p) for p in probas]
         return np.array(logprob)
