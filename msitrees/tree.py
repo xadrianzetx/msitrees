@@ -19,8 +19,7 @@ class MSIDecisionTreeClassifier:
 
     @property
     def feature_importances_(self):
-        """
-        Returns feature importances
+        """Returns feature importances
 
         Feature importance at each node is specified
         as weighted gini based information gain. Feature
@@ -29,9 +28,9 @@ class MSIDecisionTreeClassifier:
         on particular feature.
 
         Returns
-        ----------
-            np.ndarray
-            Normalized array of feature importances
+        -------
+        importances : np.ndarray
+            Normalized array of feature importances.
         """
         if self._fitted:
             return self._importances / sum(self._importances)
@@ -52,8 +51,7 @@ class MSIDecisionTreeClassifier:
         return named_criteria, valid, importance
 
     def _calculate_cost(self, x: np.ndarray, y: np.ndarray) -> float:
-        """
-        Calculates cost of growing new branch in a decision tree
+        """Calculates cost of growing new branch in a decision tree
 
         Follows paper implementation based on harmonic mean of
         model inaccuracy and surfeit, but with modifications to
@@ -62,8 +60,8 @@ class MSIDecisionTreeClassifier:
 
         References
         ----------
-        [1] https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=8767915
-        [2] https://en.wikipedia.org/wiki/Kolmogorov_complexity
+        - [1] https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=8767915
+        - [2] https://en.wikipedia.org/wiki/Kolmogorov_complexity
         """
         # approximate surfeit 1 - K(X)/M of a model
         # by  calculating 1 - Comp(M)/M where M
@@ -118,15 +116,15 @@ class MSIDecisionTreeClassifier:
 
         References
         ----------
-        [1] https://www.cs.bu.edu/teaching/c/tree/breadth-first/
-        [2] https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=8767915
+        - [1] https://www.cs.bu.edu/teaching/c/tree/breadth-first/
+        - [2] https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=8767915
 
         Params
-        ----------
-            x: np.ndarray
+        ------
+        x: np.ndarray
             Training data
 
-            y: np.ndarray
+        y: np.ndarray
             Targets
         """
         min_cost = np.inf
@@ -238,13 +236,25 @@ class MSIDecisionTreeClassifier:
         return data
 
     def get_depth(self):
-        """Returns decision tree depth"""
+        """Returns decision tree depth
+
+        Returns
+        -------
+        depth : int
+            Maximum depth of fitted decision tree.
+        """
         if self._fitted:
             return self._root.count_nodes_to_bottom() - 1
         return 0
 
     def get_n_leaves(self) -> int:
-        '''Returns number of tree leaves'''
+        '''Returns number of tree leaves
+
+        Returns
+        -------
+        num_leaves : int
+            Number of leaf nodes in fitted tree.
+        '''
         if self._fitted:
             return self._root.count_tree_nodes(leaf_only=True)
         return 0
@@ -290,9 +300,10 @@ class MSIDecisionTreeClassifier:
         return self
 
     def _predict_in_training(self, x: np.ndarray) -> np.ndarray:
-        """
-        Predict class labels for input data X
+        """Predicts class labels for input data X
 
+        Notes
+        -----
         Overrides input validation and should be used
         only inside cost function.
         """
@@ -300,18 +311,17 @@ class MSIDecisionTreeClassifier:
         return np.array(pred)
 
     def predict(self, x: np.ndarray) -> np.ndarray:
-        """
-        Predict class labels for input data X
+        """Predicts class labels for input data X
 
-        Params
+        Parameters
         ----------
-            x: np.array
+        x : np.ndarray
             Array of samples with shape (n_samples, n_features).
             Class label is predicted for each sample.
 
         Returns
-        ----------
-            np.array
+        -------
+        pred : np.ndarray
             Array with shape (n_samples, )
             Class label prediction for each sample.
         """
@@ -320,20 +330,20 @@ class MSIDecisionTreeClassifier:
         return pred
 
     def predict_proba(self, x: np.ndarray) -> np.ndarray:
-        """
-        Predict class probability for input data X.
+        """Predicts class probability for input data X.
+
         Probability is defined as fraction of class
         label in a leaf.
 
-        Params
+        Parameters
         ----------
-            x: np.array
+        x : np.ndarray
             Array of samples with shape (n_samples, n_features).
             Class probabilities are predicted for each sample.
 
         Returns
-        ----------
-            np.array
+        -------
+        probas : np.ndarray
             Array with shape (n_samples, n_targets)
             Array of probabilities. Each index corresponds to
             class label and holds predicted porbability of this class.
@@ -343,20 +353,20 @@ class MSIDecisionTreeClassifier:
         return np.array(pred)
 
     def predict_log_proba(self, x: np.ndarray) -> np.ndarray:
-        """
-        Predict class log probability for input data X.
+        """Predicts class log probability for input data X.
+
         Probability is defined as fraction of class
         label in a leaf.
 
-        Params
+        Parameters
         ----------
-            x: np.array
+        x : np.ndarray
             Array of samples with shape (n_samples, n_features).
             Class log probabilities are predicted for each sample.
 
         Returns
-        ----------
-            np.array
+        -------
+        logprobas : np.ndarray
             Array with shape (n_samples, n_targets)
             Array of log probabilities. Each index corresponds to
             class label and holds predicted log porbability of this class.
