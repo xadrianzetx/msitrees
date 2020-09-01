@@ -325,6 +325,14 @@ class TestMSIDecisionTreeClassifierPredict(unittest.TestCase):
         with self.assertRaises(ValueError):
             model.predict_proba(x)
 
+    def test_score_wrong_dim(self):
+        x = np.array([[[1], [1], [1]]])
+        y = np.array([1])
+        model = TestMSIDecisionTreeClassifierPredict.clf
+
+        with self.assertRaises(ValueError):
+            model.score(x, y)
+
     def test_predict_empty(self):
         x = np.array([[]])
         model = TestMSIDecisionTreeClassifierPredict.clf
@@ -338,6 +346,14 @@ class TestMSIDecisionTreeClassifierPredict(unittest.TestCase):
 
         with self.assertRaises(ValueError):
             model.predict_proba(x)
+
+    def test_score_empty(self):
+        x = np.array([[]])
+        y = np.array([])
+        model = TestMSIDecisionTreeClassifierPredict.clf
+
+        with self.assertRaises(ValueError):
+            model.score(x, y)
 
     def test_predict_type_not_supported(self):
         x = 'foo'
@@ -353,6 +369,14 @@ class TestMSIDecisionTreeClassifierPredict(unittest.TestCase):
         with self.assertRaises(TypeError):
             model.predict_proba(x)
 
+    def test_score_type_not_supported(self):
+        x = 'foo'
+        y = 'bar'
+        model = TestMSIDecisionTreeClassifierPredict.clf
+
+        with self.assertRaises(TypeError):
+            model.score(x, y)
+
     def test_predict_not_numeric(self):
         x = np.array([['1', '2', '3', '4']])
         model = TestMSIDecisionTreeClassifierPredict.clf
@@ -367,6 +391,14 @@ class TestMSIDecisionTreeClassifierPredict(unittest.TestCase):
         with self.assertRaises(ValueError):
             model.predict_proba(x)
 
+    def test_score_not_numeric(self):
+        x = np.array([['1', '2', '3', '4']])
+        y = np.array(['1'])
+        model = TestMSIDecisionTreeClassifierPredict.clf
+
+        with self.assertRaises(ValueError):
+            model.score(x, y)
+
     def test_predict_has_nan(self):
         x = np.array([[1, 2, 3, np.nan]])
         model = TestMSIDecisionTreeClassifierPredict.clf
@@ -380,6 +412,14 @@ class TestMSIDecisionTreeClassifierPredict(unittest.TestCase):
 
         with self.assertRaises(ValueError):
             model.predict_proba(x)
+
+    def test_score_has_nan(self):
+        x = np.array([[1, 2, 3, np.nan]])
+        y = np.array([1])
+        model = TestMSIDecisionTreeClassifierPredict.clf
+
+        with self.assertRaises(ValueError):
+            model.score(x, y)
 
     def test_predict_has_infinite(self):
         x = np.array([[1, 2, 3, np.inf]])
@@ -405,6 +445,19 @@ class TestMSIDecisionTreeClassifierPredict(unittest.TestCase):
         with self.assertRaises(ValueError):
             model.predict_proba(x)
 
+    def test_score_infinite(self):
+        x = np.array([[1, 2, 3, np.inf]])
+        y = np.array([1])
+        model = TestMSIDecisionTreeClassifierPredict.clf
+
+        with self.assertRaises(ValueError):
+            model.score(x, y)
+
+        x = np.array([[1, 2, 3, -np.inf]])
+
+        with self.assertRaises(ValueError):
+            model.score(x, y)
+
     def test_predict_tree_not_fitted(self):
         model = MSIDecisionTreeClassifier()
         with self.assertRaises(ValueError):
@@ -414,6 +467,11 @@ class TestMSIDecisionTreeClassifierPredict(unittest.TestCase):
         model = MSIDecisionTreeClassifier()
         with self.assertRaises(ValueError):
             model.predict_proba(np.array([[1, 2]]))
+
+    def test_score_tree_not_fited(self):
+        model = MSIDecisionTreeClassifier()
+        with self.assertRaises(ValueError):
+            model.score(np.array([[1, 2]]), np.array([1]))
 
     def test_predict_nfeats_drift(self):
         # inference on different number
@@ -430,6 +488,21 @@ class TestMSIDecisionTreeClassifierPredict(unittest.TestCase):
 
         with self.assertRaises(ValueError):
             model.predict_proba(x)
+
+    def test_score_nfeats_drift(self):
+        x = np.array([[1, 2, 3]])
+        y = np.array([1])
+        model = TestMSIDecisionTreeClassifierPredict.clf
+
+        with self.assertRaises(ValueError):
+            model.score(x, y)
+
+    def test_score_iris(self):
+        x = np.array([[5.7, 3.8, 1.7, 0.3]])
+        y = np.array([0])
+        model = TestMSIDecisionTreeClassifierPredict.clf
+        acc = model.score(x, y)
+        self.assertEqual(acc, 1.0)
 
 
 if __name__ == "__main__":
