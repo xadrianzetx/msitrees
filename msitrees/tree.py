@@ -8,6 +8,63 @@ from msitrees._node import MSINode
 
 
 class MSIDecisionTreeClassifier:
+    """MSI Decision Tree Classifier
+
+    Based on breadth-first tree traversal, this no-hyperparameter
+    tree building algorithm tries to create new decision nodes by
+    performing temporary split for each candidate node
+    (at any point of time all current leaves are considered candidate)
+    one by one, and keeping one which decreases overall cost
+    function the most. New branches created with this operation are
+    added to candidate pool. Best split points are estimated with
+    gini based information gain. Training ends when any new split would
+    only add needless complexity to the tree.
+
+    Cost function follows paper implementation [1] based on harmonic
+    mean of model inaccuracy and surfeit, but with modifications to
+    approximation of I(X, M) for performance and reusability reasons.
+
+    Attributes
+    ----------
+    root : MSINode
+        Root of a decision tree. All decision and leaf
+        nodes are children of this node.
+
+    fitted : bool
+        Boolean variable indicating if tree was previously
+        fitted.
+
+    shape : tuple
+        Shape of dataset X with (n_samples, n_features)
+        or None if tree was not yet fitted.
+
+    ncls : int
+        Number of classification categories or None
+        if tree was not yet fitted.
+
+    ndim : int
+        Number of dataset X dimensions. 1 if n_features eq 1,
+        2 if n_features > 1 or None if tree was not yet fitted.
+
+    importances : np.ndarray
+        Array with feature importances or None if tree was not
+        yet.
+
+    References
+    ----------
+    - [1] https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=8767915
+    - [2] https://www.cs.bu.edu/teaching/c/tree/breadth-first/
+    - [3] https://en.wikipedia.org/wiki/Kolmogorov_complexity
+
+    Examples
+    --------
+    >>> from msitrees.tree import MSIDecisionTreeClassifier
+    >>> from sklearn.datasets import load_iris
+    >>> from sklearn.model_selection import train_test_split
+    >>> from sklearn.metrics import accuracy_score
+    >>> data = load_digits()
+    TODO
+    """
 
     def __init__(self):
         self._root = MSINode()
@@ -51,18 +108,7 @@ class MSIDecisionTreeClassifier:
         return named_criteria, valid, importance
 
     def _calculate_cost(self, x: np.ndarray, y: np.ndarray) -> float:
-        """Calculates cost of growing new branch in a decision tree
-
-        Follows paper implementation based on harmonic mean of
-        model inaccuracy and surfeit, but with modifications to
-        approximation of I(X, M) for performance and reusability
-        reasons.
-
-        References
-        ----------
-        - [1] https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=8767915
-        - [2] https://en.wikipedia.org/wiki/Kolmogorov_complexity
-        """
+        """Calculates cost of growing new branch in a decision tree"""
         # approximate surfeit 1 - K(X)/M of a model
         # by  calculating 1 - Comp(M)/M where M
         # is a dict representation of decision tree
@@ -103,30 +149,7 @@ class MSIDecisionTreeClassifier:
         return idx_left, idx_right
 
     def _build_tree(self, x: np.ndarray, y: np.ndarray):
-        """
-        Builds MSI classification tree
-
-        Based on breadth-first tree traversal, this algorithm
-        tries to perform new split for each candidate node
-        (one that is not a leaf) one by one, and keeps split
-        which decreases overall cost function. New nodes created with this
-        operation are added to candidate pool. Split points are estimated
-        with gini based information gain. Training ends when any new split
-        would only add needless complexity to the tree.
-
-        References
-        ----------
-        - [1] https://www.cs.bu.edu/teaching/c/tree/breadth-first/
-        - [2] https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=8767915
-
-        Params
-        ------
-        x: np.ndarray
-            Training data
-
-        y: np.ndarray
-            Targets
-        """
+        """Builds MSI classification tree"""
         min_cost = np.inf
         self._root.indices = np.arange(x.shape[0])
         candidates = [self._root.id]
@@ -262,7 +285,13 @@ class MSIDecisionTreeClassifier:
     def fit(self, x: Union[np.ndarray, pd.DataFrame, pd.Series],
             y: Union[np.ndarray, pd.Series]) -> 'MSIDecisionTreeClassifier':
         """
-        TODO docs are important!
+        Params
+        ------
+        x: np.ndarray
+            Training data
+
+        y: np.ndarray
+            Targets
         """
         x = self._validate_input(x, expected_dim=2)
         y = self._validate_input(y, expected_dim=1)
