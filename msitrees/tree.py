@@ -60,10 +60,13 @@ class MSIDecisionTreeClassifier:
     --------
     >>> from msitrees.tree import MSIDecisionTreeClassifier
     >>> from sklearn.datasets import load_iris
-    >>> from sklearn.model_selection import train_test_split
-    >>> from sklearn.metrics import accuracy_score
-    >>> data = load_digits()
-    TODO
+    >>> from sklearn.model_selection import cross_val_score
+    >>> data = load_iris()
+    >>> clf = MSIDecisionTreeClassifier()
+    >>> cross_val_score(clf, data['data'], data['target'], cv=10)
+    ...
+    array([1.        , 1.        , 1.        , 0.93333333, 0.93333333,
+        0.8       , 0.93333333, 0.86666667, 0.8       , 1.        ])
     """
 
     def __init__(self):
@@ -428,10 +431,10 @@ class MSIDecisionTreeClassifier:
         logprob = [np.log(p) for p in probas]
         return np.array(logprob)
 
-    def get_params(self, deep: bool = True):
+    def get_params(self, deep: bool = True) -> dict:
         """scikit-learn API compatibility"""
         return {}
 
-    def set_params(self, **params: dict):
+    def set_params(self, **params: dict) -> 'MSIDecisionTreeClassifier':
         """scikit-learn API compatibility"""
         return self
