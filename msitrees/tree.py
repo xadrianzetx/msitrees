@@ -284,7 +284,7 @@ class MSIDecisionTreeClassifier:
 
         return data
 
-    def get_depth(self):
+    def get_depth(self) -> int:
         """Returns decision tree depth
 
         Returns
