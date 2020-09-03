@@ -9,7 +9,7 @@ msitrees is a set of machine learning models based on [minimum surfeit and inacc
 
 For convenience, msitrees comes with scikit-learn style API and can be used with sklearn functions accepting ```estimator``` object as parameter.
 
-## Instalation
+## Installation
 
 ### With pip
 
