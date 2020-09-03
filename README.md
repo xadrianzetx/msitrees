@@ -1,6 +1,6 @@
 # msitrees
 
-msitrees is a set of ML models based on [minimum surfeit and inaccuracy](https://ieeexplore.ieee.org/document/8767915) decision tree algorithm. So whats cool about it? No hyperparameters to optimize for base learner. Tree is regularized internally to avoid overfitting by design. Quoting authors of the paper:
+msitrees is a set of machine learning models based on [minimum surfeit and inaccuracy](https://ieeexplore.ieee.org/document/8767915) decision tree algorithm. So whats cool about them? No hyperparameters to optimize for base learner. Tree is regularized internally to avoid overfitting by design. Quoting authors of the paper:
 
 > To achieve this, the algorithm must automatically understand when growing the decision tree adds needless complexity, and must
 > measure such complexity in a way that is commensurate to some prediction quality aspect, e.g., inaccuracy. We argue that a
