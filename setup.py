@@ -8,8 +8,9 @@ __version__ = '0.1.dev0'
 
 
 def get_long_desc():
-    # TODO
-    pass
+    with open('README.md', 'r') as file:
+        description = file.read()
+    return description
 
 
 def include_numpy():
@@ -50,6 +51,9 @@ setup(
     name='msitrees',
     version=__version__,
     author='xadrianzetx',
+    description='MSI based machine learning algorithms',
+    long_description=get_long_desc(),
+    long_description_content_type='text/markdown',
     packages=find_packages(include=['msitrees']),
     ext_modules=get_ext_modules(),
     python_requires='>=3.5',
