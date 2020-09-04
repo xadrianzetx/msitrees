@@ -51,16 +51,29 @@ setup(
     name='msitrees',
     version=__version__,
     author='xadrianzetx',
+    url='https://github.com/xadrianzetx/msitrees',
     description='MSI based machine learning algorithms',
     long_description=get_long_desc(),
     long_description_content_type='text/markdown',
     packages=find_packages(include=['msitrees']),
     ext_modules=get_ext_modules(),
+    classifiers=[
+        'Development Status :: 4 - Beta',
+        'Intended Audience :: Developers',
+        'Intended Audience :: Science/Research',
+        'License :: OSI Approved :: MIT License',
+        'Operating System :: Microsoft :: Windows',
+        'Operating System :: POSIX :: Linux',
+        'Programming Language :: C++',
+        'Programming Language :: Python :: 3',
+        'Topic :: Scientific/Engineering :: Artificial Intelligence',
+        'Topic :: Scientific/Engineering :: Mathematics',
+        'Topic :: Software Development :: Libraries'
+    ],
     python_requires='>=3.5',
-    setup_requires=[
-        'pybind11>=2.5.0',
-        'numpy',
-        'wheel'
+    install_requires=[
+        'numpy>=1.18',
+        'pandas>=1.0.0',
     ],
     cmdclass={'build_ext': build_ext},
     zip_safe=False
