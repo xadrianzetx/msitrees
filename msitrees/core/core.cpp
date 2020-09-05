@@ -177,7 +177,7 @@ quad cgbs(xt::pyarray<double>& x, xt::pyarray<int>& y,
 using idxpair = std::tuple<xt::xarray<int>, xt::xarray<int>>;
 
 idxpair split_indices(xt::pyarray<double>& x, 
-    std::tuple<int, double>& params, int& nfts) {
+    std::tuple<int, double> params, int& nfts) {
     // split indices into left and right subtree
     // based on optimal split point
     int feat = std::get<0>(params);
