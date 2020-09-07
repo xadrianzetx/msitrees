@@ -4,7 +4,7 @@ from setuptools import Extension, setup, find_packages
 from setuptools.command.build_ext import build_ext
 
 
-__version__ = '0.1.dev1'
+__version__ = '0.1.rc1'
 
 
 def get_long_desc():
