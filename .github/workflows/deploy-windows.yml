@@ -22,12 +22,16 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
-        pip install flake8 setuptools twine
+        pip install -U flake8 setuptools twine
 
-    - name: Build and publish
+    - name: Build and validate
+      run: |
+        python setup.py sdist bdist_wheel
+        twine check dist/*
+    
+    - name: Publish
       env:
         TWINE_USERNAME: ${{ secrets.DEV_PYPI_USER }}
         TWINE_PASSWORD: ${{ secrets.DEV_PYPI_PASSWORD }}
       run: |
-        python setup.py sdist bdist_wheel
-        python -m twine upload --repository testpypi dist/*
+        twine upload --repository testpypi dist/* --skip-existing
