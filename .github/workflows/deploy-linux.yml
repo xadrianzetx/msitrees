@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.8]
+        python-version: [3.7]
     steps:
     - uses: actions/checkout@v2
 
@@ -33,11 +33,11 @@ jobs:
     
     - name: Validate
       run: |
-        twine check dist/*
+        twine check dist/*-manylinux*.whl
     
     - name: Publish
       env:
         TWINE_USERNAME: ${{ secrets.DEV_PYPI_USER }}
         TWINE_PASSWORD: ${{ secrets.DEV_PYPI_PASSWORD }}
       run: |
-        twine upload --repository testpypi dist/* --skip-existing
+        twine upload --repository testpypi dist/*-manylinux*.whl --skip-existing
