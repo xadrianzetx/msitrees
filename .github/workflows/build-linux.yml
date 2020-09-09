@@ -1,4 +1,4 @@
-name: 'Build linux package'
+name: 'Linux build'
 
 on:
   push:

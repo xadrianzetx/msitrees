@@ -1,3 +1,16 @@
+<p align="center">
+<a href='https://msitrees.readthedocs.io/en/latest/?badge=latest'>
+    <img src='https://readthedocs.org/projects/msitrees/badge/?version=latest' alt='Documentation Status' />
+</a>
+
+<a href='https://github.com/xadrianzetx/msitrees/actions'>
+    <img src='https://github.com/xadrianzetx/msitrees/workflows/Linux%20build/badge.svg' alt='Build linux' />
+
+<a href='https://github.com/xadrianzetx/msitrees/actions'>
+    <img src='https://github.com/xadrianzetx/msitrees/workflows/Windows%20build/badge.svg' alt='Build windows' />
+    
+</p>
+
 # msitrees
 
 msitrees is a set of machine learning models based on [minimum surfeit and inaccuracy](https://ieeexplore.ieee.org/document/8767915) decision tree algorithm. So whats cool about them? No hyperparameters to optimize for base learner. Tree is regularized internally to avoid overfitting by design. Quoting authors of the paper:
@@ -14,7 +27,7 @@ For convenience, msitrees comes with scikit-learn style API and can be used with
 ### With pip
 
 ```bash
-soon
+pip install msitrees
 ```
 
 ### From source
@@ -44,4 +57,4 @@ cross_val_score(clf, data['data'], data['target'], cv=10)
 
 ## Reference documentation
 
-Soon.
+API documentation is available on [here](https://msitrees.readthedocs.io/en/latest/index.html).

@@ -1,4 +1,4 @@
-name: 'Build windows package'
+name: 'Windows build'
 
 on:
   push:
