@@ -5,10 +5,16 @@
 
 <a href='https://github.com/xadrianzetx/msitrees/actions'>
     <img src='https://github.com/xadrianzetx/msitrees/workflows/Linux%20build/badge.svg' alt='Build linux' />
+</a>
 
 <a href='https://github.com/xadrianzetx/msitrees/actions'>
     <img src='https://github.com/xadrianzetx/msitrees/workflows/Windows%20build/badge.svg' alt='Build windows' />
-    
+</a>
+
+<a href="https://badge.fury.io/py/msitrees">
+    <img src="https://badge.fury.io/py/msitrees.svg" alt="PyPI version">
+</a>
+
 </p>
 
 # msitrees
