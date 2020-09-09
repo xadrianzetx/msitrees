@@ -31,7 +31,7 @@ jobs:
     
     - name: Publish
       env:
-        TWINE_USERNAME: ${{ secrets.DEV_PYPI_USER }}
-        TWINE_PASSWORD: ${{ secrets.DEV_PYPI_PASSWORD }}
+        TWINE_USERNAME: ${{ secrets.PYPI_USER }}
+        TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
       run: |
-        twine upload --repository testpypi dist/* --skip-existing
+        twine upload dist/*.whl --skip-existing
