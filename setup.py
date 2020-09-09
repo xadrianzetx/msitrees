@@ -4,7 +4,7 @@ from setuptools import Extension, setup, find_packages
 from setuptools.command.build_ext import build_ext
 
 
-__version__ = '0.1.rc1'
+__version__ = '0.1'
 
 
 def get_long_desc():
@@ -58,7 +58,7 @@ setup(
     packages=find_packages(include=['msitrees']),
     ext_modules=get_ext_modules(),
     classifiers=[
-        'Development Status :: 4 - Beta',
+        'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
         'Intended Audience :: Science/Research',
         'License :: OSI Approved :: MIT License',
