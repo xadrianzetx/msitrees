@@ -91,13 +91,16 @@ class MSIDecisionTreeClassifier:
         0.8       , 0.93333333, 0.86666667, 0.8       , 1.        ])
     """
 
-    def __init__(self):
+    def __init__(self, **kwargs):
         self._root = MSINode()
         self._fitted = False
         self._shape = None
         self._ncls = None
         self._ndim = None
         self._importances = None
+
+    def __repr__(self):
+        return 'MSIDecisionTreeClassifier()'
 
     @property
     def feature_importances_(self):
