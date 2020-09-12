@@ -63,4 +63,4 @@ cross_val_score(clf, data['data'], data['target'], cv=10)
 
 ## Reference documentation
 
-API documentation is available on [here](https://msitrees.readthedocs.io/en/latest/index.html).
+API documentation is available [here](https://msitrees.readthedocs.io/en/latest/index.html).
