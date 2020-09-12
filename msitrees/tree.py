@@ -368,16 +368,54 @@ class MSIDecisionTreeClassifier:
 
         return self
 
+    def _internal_fit(self, x: Union[np.ndarray, pd.DataFrame, pd.Series],
+                      y: Union[np.ndarray, pd.Series],
+                      n_class: int) -> 'MSIDecisionTreeClassifier':
+        """Fits decision tree from training dataset.
+
+        Notes
+        -----
+        Bypasses dataset validation before tree is built.
+        Should be only used internally in ensemble algorithms.
+        """
+        x = x.astype(np.float)
+        y = y.astype(np.int)
+        self._ncls = n_class
+        self._shape = x.shape
+        self._ndim = x.ndim
+
+        if x.ndim == 2:
+            self._importances = np.zeros(shape=(x.shape[1], ))
+
+        else:
+            self._importances = np.zeros(shape=(1, ))
+
+        self._build_tree(x, y)
+        self._fitted = True
+
+        return self
+
     def _predict_in_training(self, x: np.ndarray) -> np.ndarray:
         """Predicts class labels for input data X
 
         Notes
         -----
-        Overrides input validation and should be used
-        only inside cost function.
+        Overrides input validation and should only be used
+        internally by other methods.
         """
 
         pred = [self._root.predict(obs)[0] for obs in x]
+        return np.array(pred)
+
+    def _predict_proba_in_training(self, x: np.ndarray) -> np.ndarray:
+        """Predicts class proba for input data X
+
+        Notes
+        -----
+        Overrides input validation and should only be used
+        internally by other methods.
+        """
+        pred = [self._root.predict(obs)[1] for obs in x]
         return np.array(pred)
 
     def score(self, x: np.ndarray, y: np.ndarray) -> np.ndarray:
@@ -446,8 +484,8 @@ class MSIDecisionTreeClassifier:
         """
 
         self._validate_input(x, expected_dim=2, inference=True)
-        pred = [self._root.predict(obs)[1] for obs in x]
-        return np.array(pred)
+        pred = self._predict_proba_in_training(x)
+        return pred
 
     def predict_log_proba(self, x: np.ndarray) -> np.ndarray:
         """Predicts class log probability for input data X.
