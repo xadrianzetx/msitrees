@@ -150,7 +150,7 @@ class MSIDecisionTreeClassifier(MSIBaseClassifier):
         # faster to calculate and should work with eg. MAPE
         # for regression tasks (or just about anything that maps
         # model error to [0, 1])
-        y_pred = self._predict_in_training(x)
+        y_pred = self._internal_predict(x)
         hits = sum(y == y_pred)
         iacc = 1 - (hits / self._shape[0])
 
@@ -268,7 +268,7 @@ class MSIDecisionTreeClassifier(MSIBaseClassifier):
 
         return self
 
-    def _predict_in_training(self, x: np.ndarray) -> np.ndarray:
+    def _internal_predict(self, x: np.ndarray) -> np.ndarray:
         """Predicts class labels for input data X
 
         Notes
@@ -383,7 +383,7 @@ class MSIDecisionTreeClassifier(MSIBaseClassifier):
 
         self._validate_input(x, expected_dim=2, inference=True)
         self._validate_input(y, expected_dim=1)
-        pred = self._predict_in_training(x)
+        pred = self._internal_predict(x)
         mean_acc = sum(pred == y) / len(y)
 
         return mean_acc
@@ -405,7 +405,7 @@ class MSIDecisionTreeClassifier(MSIBaseClassifier):
         """
 
         self._validate_input(x, expected_dim=2, inference=True)
-        pred = self._predict_in_training(x)
+        pred = self._internal_predict(x)
         return pred
 
     def predict_proba(self, x: np.ndarray) -> np.ndarray:
