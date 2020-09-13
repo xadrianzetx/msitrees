@@ -287,6 +287,33 @@ class MSIDecisionTreeClassifier:
 
         return data
 
+    def _internal_fit(self, x: Union[np.ndarray, pd.DataFrame, pd.Series],
+                      y: Union[np.ndarray, pd.Series],
+                      n_class: int) -> 'MSIDecisionTreeClassifier':
+        """Fits decision tree from training dataset.
+
+        Notes
+        -----
+        Bypasses dataset validation before tree is built.
+        Should be only used internally in ensemble algorithms.
+        """
+        x = x.astype(np.float)
+        y = y.astype(np.int)
+        self._ncls = n_class
+        self._shape = x.shape
+        self._ndim = x.ndim
+
+        if x.ndim == 2:
+            self._importances = np.zeros(shape=(x.shape[1], ))
+
+        else:
+            self._importances = np.zeros(shape=(1, ))
+
+        self._build_tree(x, y)
+        self._fitted = True
+
+        return self
+
     def get_depth(self) -> int:
         """Returns decision tree depth
 
@@ -349,52 +376,13 @@ class MSIDecisionTreeClassifier:
             raise ValueError('Class labels should start from 0')
 
         classes = np.unique(y)
-        self._ncls = len(classes)
+        n_class = len(classes)
 
         # check if classes go in sequence by one
-        if self._ncls != max(classes) + 1:
+        if n_class != max(classes) + 1:
             raise ValueError('Y is mislabeled')
 
-        x = x.astype(np.float)
-        y = y.astype(np.int)
-        self._shape = x.shape
-        self._ndim = x.ndim
-
-        if x.ndim == 2:
-            self._importances = np.zeros(shape=(x.shape[1], ))
-
-        else:
-            self._importances = np.zeros(shape=(1, ))
-
-        self._build_tree(x, y)
-        self._fitted = True
-
-        return self
-
-    def _internal_fit(self, x: Union[np.ndarray, pd.DataFrame, pd.Series],
-                      y: Union[np.ndarray, pd.Series],
-                      n_class: int) -> 'MSIDecisionTreeClassifier':
-        """Fits decision tree from training dataset.
-
-        Notes
-        -----
-        Bypasses dataset validation before tree is built.
-        Should be only used internally in ensemble algorithms.
-        """
-        x = x.astype(np.float)
-        y = y.astype(np.int)
-        self._ncls = n_class
-        self._shape = x.shape
-        self._ndim = x.ndim
-
-        if x.ndim == 2:
-            self._importances = np.zeros(shape=(x.shape[1], ))
-
-        else:
-            self._importances = np.zeros(shape=(1, ))
-
-        self._build_tree(x, y)
-        self._fitted = True
+        self._internal_fit(x, y, n_class=n_class)
 
         return self
 
