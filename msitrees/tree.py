@@ -314,6 +314,29 @@ class MSIDecisionTreeClassifier:
 
         return self
 
+    def _predict_in_training(self, x: np.ndarray) -> np.ndarray:
+        """Predicts class labels for input data X
+
+        Notes
+        -----
+        Overrides input validation and should only be used
+        internally by other methods.
+        """
+
+        pred = [self._root.predict(obs)[0] for obs in x]
+        return np.array(pred)
+
+    def _predict_proba_in_training(self, x: np.ndarray) -> np.ndarray:
+        """Predicts class proba for input data X
+
+        Notes
+        -----
+        Overrides input validation and should only be used
+        internally by other methods.
+        """
+        pred = [self._root.predict(obs)[1] for obs in x]
+        return np.array(pred)
+
     def get_depth(self) -> int:
         """Returns decision tree depth
 
@@ -385,29 +408,6 @@ class MSIDecisionTreeClassifier:
         self._internal_fit(x, y, n_class=n_class)
 
         return self
-
-    def _predict_in_training(self, x: np.ndarray) -> np.ndarray:
-        """Predicts class labels for input data X
-
-        Notes
-        -----
-        Overrides input validation and should only be used
-        internally by other methods.
-        """
-
-        pred = [self._root.predict(obs)[0] for obs in x]
-        return np.array(pred)
-
-    def _predict_proba_in_training(self, x: np.ndarray) -> np.ndarray:
-        """Predicts class proba for input data X
-
-        Notes
-        -----
-        Overrides input validation and should only be used
-        internally by other methods.
-        """
-        pred = [self._root.predict(obs)[1] for obs in x]
-        return np.array(pred)
 
     def score(self, x: np.ndarray, y: np.ndarray) -> np.ndarray:
         """Predicts from X and computes accuracy score wrt. y
