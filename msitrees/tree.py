@@ -280,7 +280,7 @@ class MSIDecisionTreeClassifier(MSIBaseClassifier):
         pred = [self._root.predict(obs)[0] for obs in x]
         return np.array(pred)
 
-    def _predict_proba_in_training(self, x: np.ndarray) -> np.ndarray:
+    def _internal_predict_proba(self, x: np.ndarray) -> np.ndarray:
         """Predicts class proba for input data X
 
         Notes
@@ -429,7 +429,7 @@ class MSIDecisionTreeClassifier(MSIBaseClassifier):
         """
 
         self._validate_input(x, expected_dim=2, inference=True)
-        pred = self._predict_proba_in_training(x)
+        pred = self._internal_predict_proba(x)
         return pred
 
     def predict_log_proba(self, x: np.ndarray) -> np.ndarray:
