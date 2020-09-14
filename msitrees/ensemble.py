@@ -25,7 +25,7 @@ class MSIRandomForestClassifier(MSIBaseClassifier):
         self._random_state = random_state
 
     def __repr__(self):
-        pass
+        return 'MSIRandomForestClassifier()'
 
     @property
     def feature_importances_(self):
