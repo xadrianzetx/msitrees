@@ -34,7 +34,7 @@ class MSIRandomForestClassifier(MSIBaseClassifier):
     def _add_estimator(self, x: np.ndarray,
                        y: np.ndarray,
                        seed: int) -> MSIDecisionTreeClassifier:
-        """Builds new estimator for ensemble"""
+        """Builds new estimator to ensemble"""
         if self._bootstrap:
             # sample dataset with replacement
             # before fitting new estimator
@@ -57,8 +57,45 @@ class MSIRandomForestClassifier(MSIBaseClassifier):
 
         return clf
 
-    def fit(self):
-        pass
+    def fit(self, x: Union[np.ndarray, pd.DataFrame, pd.Series],
+            y: Union[np.ndarray, pd.Series]) -> 'MSIRandomForestClassifier()':
+        """
+        TODO docstrings
+        """
+
+        x = self._validate_input(x, expected_dim=2)
+        y = self._validate_input(y, expected_dim=1)
+
+        if x.shape[0] != y.shape[0]:
+            raise ValueError('Cannot match arrays with shapes '
+                             '{} and {}'.format(x.shape, y.shape))
+
+        # check if class labels are
+        # label encoded from 0 to N
+        if y.min() > 0:
+            raise ValueError('Class labels should start from 0')
+
+        classes = np.unique(y)
+        n_class = len(classes)
+
+        # check if classes go in sequence by one
+        if n_class != max(classes) + 1:
+            raise ValueError('Y is mislabeled')
+
+        # select seeding for each estimator.
+        # ommitted by _add_estimator() if global
+        # random state is not set
+        maxint = np.iinfo(np.int32).max
+        np.random.seed(self._random_state)
+        seeds = np.random.randint(low=0, high=maxint, size=self._n_estimators)
+
+        # build ensemble
+        self._estimators = joblib.Parallel(n_jobs=self._n_jobs)(
+            joblib.delayed(self._add_estimator)(x, y, seed) for seed in seeds
+        )
+        self._fitted = True
+
+        return self
 
     def predict(self):
         pass
