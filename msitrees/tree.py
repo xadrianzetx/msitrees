@@ -96,6 +96,7 @@ class MSIDecisionTreeClassifier(MSIBaseClassifier):
         super().__init__()
         self._root = MSINode()
         self._importances = None
+        self._max_features = None
 
     def __repr__(self):
         return 'MSIDecisionTreeClassifier()'
@@ -188,9 +189,22 @@ class MSIDecisionTreeClassifier(MSIBaseClassifier):
             # cost function
             best_cand = None
 
+            if self._max_features:
+                # select subsample of features on which
+                # to fit a tree on. Each candidate for
+                # split is tested on same set of features
+                colnums = np.arange(0, self._shape[1])
+                n_mask = self._shape[1] - self._max_features
+                mask = np.random.choice(colnums, n_mask, replace=False)
+
             for cand in candidates:
                 node = self._root.get_node_by_id(cand)
                 sub_x, sub_y = x[node.indices], y[node.indices]
+
+                if self._max_features:
+                    # mask fetures not used in this split
+                    sub_x[:, mask] = 0.0
+
                 criteria, valid, importance = self._get_best_split(sub_x, sub_y)
 
                 if not valid:
@@ -243,7 +257,8 @@ class MSIDecisionTreeClassifier(MSIBaseClassifier):
 
     def _internal_fit(self, x: Union[np.ndarray, pd.DataFrame, pd.Series],
                       y: Union[np.ndarray, pd.Series],
-                      n_class: int) -> 'MSIDecisionTreeClassifier':
+                      n_class: int,
+                      sample_features: bool) -> 'MSIDecisionTreeClassifier':
         """Fits decision tree from training dataset.
 
         Notes
@@ -256,6 +271,11 @@ class MSIDecisionTreeClassifier(MSIBaseClassifier):
         self._ncls = n_class
         self._shape = x.shape
         self._ndim = x.ndim
+
+        if x.ndim == 2 and sample_features:
+            # if feature subsampling is enabled, use
+            # sklearn mode 'auto'
+            self._max_features = int(np.sqrt(x.shape[1]))
 
         if x.ndim == 2:
             self._importances = np.zeros(shape=(x.shape[1], ))
@@ -359,7 +379,7 @@ class MSIDecisionTreeClassifier(MSIBaseClassifier):
         if n_class != max(classes) + 1:
             raise ValueError('Y is mislabeled')
 
-        self._internal_fit(x, y, n_class=n_class)
+        self._internal_fit(x, y, n_class=n_class, sample_features=False)
 
         return self
 
