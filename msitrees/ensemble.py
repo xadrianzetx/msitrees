@@ -97,8 +97,22 @@ class MSIRandomForestClassifier(MSIBaseClassifier):
 
         return self
 
-    def predict(self):
-        pass
+    def predict(self, x: Union[np.ndarray, pd.DataFrame]) -> np.ndarray:
+        """
+        TODO docstrings
+        """
+
+        x = self._validate_input(x, expected_dim=2, inference=True)
+        stack = joblib.Parallel(n_jobs=self._n_jobs)(
+            joblib.delayed(e._internal_predict)(x) for e in self._estimators
+        )
+
+        # transpose prediction stack so that prediction
+        # classes for one obs are in one dim array
+        stack = np.array(stack).T
+        pred = [np.argmax(np.unique(x, return_counts=True)[1]) for x in stack]
+
+        return np.array(pred)
 
     def predict_proba(self):
         pass
