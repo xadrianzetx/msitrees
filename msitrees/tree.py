@@ -408,7 +408,7 @@ class MSIDecisionTreeClassifier(MSIBaseClassifier):
 
         return mean_acc
 
-    def predict(self, x: np.ndarray) -> np.ndarray:
+    def predict(self, x: Union[np.ndarray, pd.DataFrame]) -> np.ndarray:
         """Predicts class labels for input data X
 
         Parameters
@@ -424,11 +424,11 @@ class MSIDecisionTreeClassifier(MSIBaseClassifier):
             Class label prediction for each sample.
         """
 
-        self._validate_input(x, expected_dim=2, inference=True)
+        x = self._validate_input(x, expected_dim=2, inference=True)
         pred = self._internal_predict(x)
         return pred
 
-    def predict_proba(self, x: np.ndarray) -> np.ndarray:
+    def predict_proba(self, x: Union[np.ndarray, pd.DataFrame]) -> np.ndarray:
         """Predicts class probability for input data X.
 
         Probability is defined as fraction of class
@@ -448,11 +448,11 @@ class MSIDecisionTreeClassifier(MSIBaseClassifier):
             class label and holds predicted porbability of this class.
         """
 
-        self._validate_input(x, expected_dim=2, inference=True)
+        x = self._validate_input(x, expected_dim=2, inference=True)
         pred = self._internal_predict_proba(x)
         return pred
 
-    def predict_log_proba(self, x: np.ndarray) -> np.ndarray:
+    def predict_log_proba(self, x: Union[np.ndarray, pd.DataFrame]) -> np.ndarray:
         """Predicts class log probability for input data X.
 
         Probability is defined as fraction of class
