@@ -114,11 +114,26 @@ class MSIRandomForestClassifier(MSIBaseClassifier):
 
         return np.array(pred)
 
-    def predict_proba(self):
-        pass
+    def predict_proba(self, x: Union[np.array, pd.DataFrame]) -> np.ndarray:
+        """
+        TODO docstrings
+        """
 
-    def predict_log_proba(self):
-        pass
+        x = self._validate_input(x, expected_dim=2, inference=True)
+        stack = joblib.Parallel(n_jobs=self._n_jobs)(
+            joblib.delayed(e._internal_predict_proba)(x) for e in self._estimators
+        )
+
+        return np.array(stack).mean(axis=0)
+
+    def predict_log_proba(self, x: Union[np.array, pd.DataFrame]) -> np.ndarray:
+        """
+        TODO docstrings
+        """
+
+        probas = self.predict_proba(x)
+        logprob = [np.log(p) for p in probas]
+        return np.array(logprob)
 
     def score(self):
         pass
