@@ -82,6 +82,10 @@ class MSIRandomForestClassifier(MSIBaseClassifier):
         if n_class != max(classes) + 1:
             raise ValueError('Y is mislabeled')
 
+        self._ncls = len(np.unique(y))
+        self._shape = x.shape
+        self._ndim = x.ndim
+
         # select seeding for each estimator.
         # ommitted by _add_estimator() if global
         # random state is not set
