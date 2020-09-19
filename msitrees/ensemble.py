@@ -1,6 +1,7 @@
 import joblib
 import numpy as np
 import pandas as pd
+from collections import Counter
 from typing import Union, Optional
 
 from msitrees._base import MSIBaseClassifier
@@ -114,7 +115,7 @@ class MSIRandomForestClassifier(MSIBaseClassifier):
         # transpose prediction stack so that prediction
         # classes for one obs are in one dim array
         stack = np.array(stack).T
-        pred = [np.argmax(np.unique(x, return_counts=True)[1]) for x in stack]
+        pred = [Counter(s).most_common(1)[0][0] for s in stack]
 
         return np.array(pred)
 
