@@ -35,7 +35,8 @@ class MSIRandomForestClassifier(MSIBaseClassifier):
     def _add_estimator(self, x: np.ndarray,
                        y: np.ndarray,
                        seed: int) -> MSIDecisionTreeClassifier:
-        """Builds new estimator to ensemble"""
+        """Adds new estimator to ensemble"""
+
         if self._bootstrap:
             # sample dataset with replacement
             # before fitting new estimator
