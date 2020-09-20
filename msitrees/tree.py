@@ -123,11 +123,13 @@ class MSIDecisionTreeClassifier(MSIBaseClassifier):
 
     def _get_class_and_proba(self, y: np.ndarray) -> dict:
         """Wraps get_class_and_proba call"""
+
         label, proba = core.get_class_and_proba(y, self._ncls)
         return {'y': label, 'proba': proba}
 
     def _get_best_split(self, x: np.ndarray, y: np.ndarray) -> tuple:
         """Wraps classif_best_split call"""
+
         nfeats = self._shape[1] if self._ndim == 2 else 1
         *criteria, importance, valid = core.classif_best_split(
             x, y, nfeats, self._shape[0])
@@ -137,6 +139,7 @@ class MSIDecisionTreeClassifier(MSIBaseClassifier):
 
     def _calculate_cost(self, x: np.ndarray, y: np.ndarray) -> float:
         """Calculates cost of growing new branch in a decision tree"""
+
         # approximate surfeit 1 - K(X)/M of a model
         # by  calculating 1 - Comp(M)/M where M
         # is a dict representation of decision tree
@@ -166,6 +169,7 @@ class MSIDecisionTreeClassifier(MSIBaseClassifier):
 
     def _get_indices(self, x: np.ndarray, feature: int, split: float) -> tuple:
         """Returns new dataset indices wrt. best split"""
+
         if self._ndim == 2:
             idx_left = np.where(x[:, feature] < split)[0]
             idx_right = np.where(x[:, feature] >= split)[0]
@@ -178,6 +182,7 @@ class MSIDecisionTreeClassifier(MSIBaseClassifier):
 
     def _build_tree(self, x: np.ndarray, y: np.ndarray):
         """Builds MSI classification tree"""
+
         min_cost = np.inf
         self._root.indices = np.arange(x.shape[0])
         candidates = [self._root.id]
@@ -190,8 +195,8 @@ class MSIDecisionTreeClassifier(MSIBaseClassifier):
             best_cand = None
 
             if self._max_features:
-                # select subsample of features on which
-                # to fit a tree on. Each candidate for
+                # select subsample of features considered
+                # in this split. Each candidate for
                 # split is tested on same set of features
                 colnums = np.arange(0, self._shape[1])
                 n_mask = self._shape[1] - self._max_features
@@ -266,6 +271,7 @@ class MSIDecisionTreeClassifier(MSIBaseClassifier):
         Bypasses dataset validation before tree is built.
         Should be only used internally in ensemble algorithms.
         """
+
         x = x.astype(np.float)
         y = y.astype(np.int)
         self._ncls = n_class
@@ -308,6 +314,7 @@ class MSIDecisionTreeClassifier(MSIBaseClassifier):
         Overrides input validation and should only be used
         internally by other methods.
         """
+
         pred = [self._root.predict(obs)[1] for obs in x]
         return np.array(pred)
 
