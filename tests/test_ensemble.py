@@ -148,6 +148,7 @@ class TestMSIRandomForestClassifier(unittest.TestCase):
             tree.fit(x, y)
 
     def test_fit_xor(self):
+        """Test if we can fit anything at all"""
         x = np.array(
             [[1, 0],
              [0, 1],
@@ -162,14 +163,18 @@ class TestMSIRandomForestClassifier(unittest.TestCase):
         )
         tree.fit(x, y)
         pred = tree.predict(x)
+        pred_proba = tree.predict_proba(x)
         acc = sum(pred == y) / len(y)
         # importances = tree.feature_importances_
         self.assertEqual(acc, 1.0)
+        self.assertAlmostEqual(sum(pred_proba[0]), 1.0)
+        self.assertEqual(np.argmax(pred_proba[0]), pred[0])
         # TODO test feature importances
         # self.assertEqual(sum(importances), 1.0)
         # np.testing.assert_allclose(importances, np.array([0., 1.]))
 
     def test_fit_onedim(self):
+        """Test fitting on one dim dataset"""
         data = load_iris()
         x_train, x_valid, y_train, y_valid = train_test_split(
             data['data'], data['target'], random_state=42)
@@ -178,8 +183,11 @@ class TestMSIRandomForestClassifier(unittest.TestCase):
         tree = MSIRandomForestClassifier(random_state=RANDOM_STATE)
         tree.fit(x_train, y_train)
         pred = tree.predict(x_valid)
+        pred_proba = tree.predict_proba(x_valid)
         acc = accuracy_score(y_valid, pred)
         self.assertGreater(acc, 0.5)
+        self.assertAlmostEqual(sum(pred_proba[0]), 1.0)
+        self.assertEqual(np.argmax(pred_proba[0]), pred[0])
 
     def test_fit_bc(self):
         '''Test fit on binary dataset'''
@@ -191,9 +199,12 @@ class TestMSIRandomForestClassifier(unittest.TestCase):
         tree = MSIRandomForestClassifier(random_state=RANDOM_STATE)
         tree.fit(x_train, y_train)
         pred = tree.predict(x_val)
+        pred_proba = tree.predict_proba(x_val)
         acc = accuracy_score(y_val, pred)
         # importances = tree.feature_importances_
         self.assertGreater(acc, 0.95)
+        self.assertAlmostEqual(sum(pred_proba[0]), 1.0)
+        self.assertEqual(np.argmax(pred_proba[0]), pred[0])
         # TODO importances
         # self.assertAlmostEqual(sum(importances), 1.0)
 
@@ -207,9 +218,12 @@ class TestMSIRandomForestClassifier(unittest.TestCase):
         tree = MSIRandomForestClassifier()
         tree.fit(x_train, y_train)
         pred = tree.predict(x_val)
+        pred_proba = tree.predict_proba(x_val)
         acc = accuracy_score(y_val, pred)
         # importances = tree.feature_importances_
         self.assertGreater(acc, 0.95)
+        self.assertAlmostEqual(sum(pred_proba[0]), 1.0)
+        self.assertEqual(np.argmax(pred_proba[0]), pred[0])
         # self.assertEqual(sum(importances), 1.0)
 
 
