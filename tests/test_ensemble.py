@@ -1,6 +1,5 @@
 import unittest
 import numpy as np
-import pandas as pd
 from msitrees.ensemble import MSIRandomForestClassifier
 
 from sklearn.datasets import load_iris, load_breast_cancer
@@ -225,6 +224,207 @@ class TestMSIRandomForestClassifier(unittest.TestCase):
         self.assertAlmostEqual(sum(pred_proba[0]), 1.0)
         self.assertEqual(np.argmax(pred_proba[0]), pred[0])
         # self.assertEqual(sum(importances), 1.0)
+
+
+class TestMSIRFClassifierPredict(unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        data = load_iris()
+        cls.clf = MSIRandomForestClassifier(random_state=RANDOM_STATE)
+        cls.clf.fit(data['data'], data['target'])
+
+    def test_predict_proba_dim(self):
+        data = load_iris()
+        probas = TestMSIRFClassifierPredict.clf.predict_proba(data['data'])
+        classes = np.unique(data['target'])
+        self.assertEqual(probas.shape[1], len(classes))
+
+    def test_predict_wrong_dim(self):
+        x = np.array([[[1], [1], [1]]])
+        model = TestMSIRFClassifierPredict.clf
+
+        with self.assertRaises(ValueError):
+            model.predict(x)
+
+    def test_predict_proba_wrong_dim(self):
+        x = np.array([[[1], [1], [1]]])
+        model = TestMSIRFClassifierPredict.clf
+
+        with self.assertRaises(ValueError):
+            model.predict_proba(x)
+
+    def test_score_wrong_dim(self):
+        x = np.array([[[1], [1], [1]]])
+        y = np.array([1])
+        model = TestMSIRFClassifierPredict.clf
+
+        with self.assertRaises(ValueError):
+            model.score(x, y)
+
+    def test_predict_empty(self):
+        x = np.array([[]])
+        model = TestMSIRFClassifierPredict.clf
+
+        with self.assertRaises(ValueError):
+            model.predict(x)
+
+    def test_predict_proba_empty(self):
+        x = np.array([[]])
+        model = TestMSIRFClassifierPredict.clf
+
+        with self.assertRaises(ValueError):
+            model.predict_proba(x)
+
+    def test_score_empty(self):
+        x = np.array([[]])
+        y = np.array([])
+        model = TestMSIRFClassifierPredict.clf
+
+        with self.assertRaises(ValueError):
+            model.score(x, y)
+
+    def test_predict_type_not_supported(self):
+        x = 'foo'
+        model = TestMSIRFClassifierPredict.clf
+
+        with self.assertRaises(TypeError):
+            model.predict(x)
+
+    def test_predict_proba_type_not_supported(self):
+        x = 'foo'
+        model = TestMSIRFClassifierPredict.clf
+
+        with self.assertRaises(TypeError):
+            model.predict_proba(x)
+
+    def test_score_type_not_supported(self):
+        x = 'foo'
+        y = 'bar'
+        model = TestMSIRFClassifierPredict.clf
+
+        with self.assertRaises(TypeError):
+            model.score(x, y)
+
+    def test_predict_not_numeric(self):
+        x = np.array([['1', '2', '3', '4']])
+        model = TestMSIRFClassifierPredict.clf
+
+        with self.assertRaises(ValueError):
+            model.predict(x)
+
+    def test_predict_proba_not_numeric(self):
+        x = np.array([['1', '2', '3', '4']])
+        model = TestMSIRFClassifierPredict.clf
+
+        with self.assertRaises(ValueError):
+            model.predict_proba(x)
+
+    def test_score_not_numeric(self):
+        x = np.array([['1', '2', '3', '4']])
+        y = np.array(['1'])
+        model = TestMSIRFClassifierPredict.clf
+
+        with self.assertRaises(ValueError):
+            model.score(x, y)
+
+    def test_predict_has_nan(self):
+        x = np.array([[1, 2, 3, np.nan]])
+        model = TestMSIRFClassifierPredict.clf
+
+        with self.assertRaises(ValueError):
+            model.predict(x)
+
+    def test_predict_proba_has_nan(self):
+        x = np.array([[1, 2, 3, np.nan]])
+        model = TestMSIRFClassifierPredict.clf
+
+        with self.assertRaises(ValueError):
+            model.predict_proba(x)
+
+    def test_score_has_nan(self):
+        x = np.array([[1, 2, 3, np.nan]])
+        y = np.array([1])
+        model = TestMSIRFClassifierPredict.clf
+
+        with self.assertRaises(ValueError):
+            model.score(x, y)
+
+    def test_predict_has_infinite(self):
+        x = np.array([[1, 2, 3, np.inf]])
+        model = TestMSIRFClassifierPredict.clf
+
+        with self.assertRaises(ValueError):
+            model.predict(x)
+
+        x = np.array([[1, 2, 3, -np.inf]])
+
+        with self.assertRaises(ValueError):
+            model.predict(x)
+
+    def test_predict_proba_has_infinite(self):
+        x = np.array([[1, 2, 3, np.inf]])
+        model = TestMSIRFClassifierPredict.clf
+
+        with self.assertRaises(ValueError):
+            model.predict_proba(x)
+
+        x = np.array([[1, 2, 3, -np.inf]])
+
+        with self.assertRaises(ValueError):
+            model.predict_proba(x)
+
+    def test_score_infinite(self):
+        x = np.array([[1, 2, 3, np.inf]])
+        y = np.array([1])
+        model = TestMSIRFClassifierPredict.clf
+
+        with self.assertRaises(ValueError):
+            model.score(x, y)
+
+        x = np.array([[1, 2, 3, -np.inf]])
+
+        with self.assertRaises(ValueError):
+            model.score(x, y)
+
+    def test_predict_tree_not_fitted(self):
+        model = MSIRandomForestClassifier()
+        with self.assertRaises(ValueError):
+            model.predict(np.array([[1, 2]]))
+
+    def test_predict_proba_tree_not_fited(self):
+        model = MSIRandomForestClassifier()
+        with self.assertRaises(ValueError):
+            model.predict_proba(np.array([[1, 2]]))
+
+    def test_score_tree_not_fited(self):
+        model = MSIRandomForestClassifier()
+        with self.assertRaises(ValueError):
+            model.score(np.array([[1, 2]]), np.array([1]))
+
+    def test_predict_nfeats_drift(self):
+        # inference on different number
+        # of feats than training
+        x = np.array([[1, 2, 3]])
+        model = TestMSIRFClassifierPredict.clf
+
+        with self.assertRaises(ValueError):
+            model.predict(x)
+
+    def test_predict_proba_nfeats_drift(self):
+        x = np.array([[1, 2, 3]])
+        model = TestMSIRFClassifierPredict.clf
+
+        with self.assertRaises(ValueError):
+            model.predict_proba(x)
+
+    def test_score_nfeats_drift(self):
+        x = np.array([[1, 2, 3]])
+        y = np.array([1])
+        model = TestMSIRFClassifierPredict.clf
+
+        with self.assertRaises(ValueError):
+            model.score(x, y)
 
 
 if __name__ == "__main__":
