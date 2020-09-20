@@ -141,8 +141,15 @@ class MSIRandomForestClassifier(MSIBaseClassifier):
         logprob = [np.log(p) for p in probas]
         return np.array(logprob)
 
-    def score(self):
-        pass
+    def score(self, x: Union[np.ndarray, pd.DataFrame],
+              y: Union[np.ndarray, pd.DataFrame]) -> float:
+        """
+        TODO docstrings
+        """
+
+        pred = self.predict(x)
+        accuracy = sum(pred == y) / len(y)
+        return accuracy
 
     def get_params(self):
         pass
