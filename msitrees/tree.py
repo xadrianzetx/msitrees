@@ -390,7 +390,7 @@ class MSIDecisionTreeClassifier(MSIBaseClassifier):
 
         return self
 
-    def score(self, x: np.ndarray, y: np.ndarray) -> np.ndarray:
+    def score(self, x: np.ndarray, y: np.ndarray) -> float:
         """Predicts from X and computes accuracy score wrt. y
 
         Parameters
@@ -404,16 +404,16 @@ class MSIDecisionTreeClassifier(MSIBaseClassifier):
 
         Returns
         -------
-        mean_acc : float
+        accuracy : float
             Accuracy score for predicted class labels.
         """
 
         self._validate_input(x, expected_dim=2, inference=True)
         self._validate_input(y, expected_dim=1)
         pred = self._internal_predict(x)
-        mean_acc = sum(pred == y) / len(y)
+        accuracy = sum(pred == y) / len(y)
 
-        return mean_acc
+        return accuracy
 
     def predict(self, x: Union[np.ndarray, pd.DataFrame]) -> np.ndarray:
         """Predicts class labels for input data X
