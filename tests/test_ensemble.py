@@ -164,13 +164,12 @@ class TestMSIRandomForestClassifier(unittest.TestCase):
         pred = tree.predict(x)
         pred_proba = tree.predict_proba(x)
         acc = sum(pred == y) / len(y)
-        # importances = tree.feature_importances_
+        importances = tree.feature_importances_
         self.assertEqual(acc, 1.0)
         self.assertAlmostEqual(sum(pred_proba[0]), 1.0)
         self.assertEqual(np.argmax(pred_proba[0]), pred[0])
-        # TODO test feature importances
-        # self.assertEqual(sum(importances), 1.0)
-        # np.testing.assert_allclose(importances, np.array([0., 1.]))
+        self.assertEqual(sum(importances), 1.0)
+        np.testing.assert_allclose(importances, np.array([0., 1.]))
 
     def test_fit_onedim(self):
         """Test fitting on one dim dataset"""
@@ -200,12 +199,11 @@ class TestMSIRandomForestClassifier(unittest.TestCase):
         pred = tree.predict(x_val)
         pred_proba = tree.predict_proba(x_val)
         acc = accuracy_score(y_val, pred)
-        # importances = tree.feature_importances_
+        importances = tree.feature_importances_
         self.assertGreater(acc, 0.95)
         self.assertAlmostEqual(sum(pred_proba[0]), 1.0)
         self.assertEqual(np.argmax(pred_proba[0]), pred[0])
-        # TODO importances
-        # self.assertAlmostEqual(sum(importances), 1.0)
+        self.assertAlmostEqual(sum(importances), 1.0)
 
     def test_fit_iris(self):
         """Test fit on multiclass dataset"""
@@ -219,11 +217,11 @@ class TestMSIRandomForestClassifier(unittest.TestCase):
         pred = tree.predict(x_val)
         pred_proba = tree.predict_proba(x_val)
         acc = accuracy_score(y_val, pred)
-        # importances = tree.feature_importances_
+        importances = tree.feature_importances_
         self.assertGreater(acc, 0.95)
         self.assertAlmostEqual(sum(pred_proba[0]), 1.0)
         self.assertEqual(np.argmax(pred_proba[0]), pred[0])
-        # self.assertEqual(sum(importances), 1.0)
+        self.assertEqual(sum(importances), 1.0)
 
 
 class TestMSIRFClassifierPredict(unittest.TestCase):
