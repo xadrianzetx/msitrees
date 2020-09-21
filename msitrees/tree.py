@@ -105,11 +105,9 @@ class MSIDecisionTreeClassifier(MSIBaseClassifier):
     def feature_importances_(self):
         """Returns feature importances
 
-        Feature importance at each node is specified
-        as weighted gini based information gain. Feature
-        importance for each feature is normalized sum of
-        importances at nodes where split was made
-        on particular feature.
+        Each feature importance is calculated as normalized
+        sum of gini based information gain at nodes where
+        split was made on that particular feature.
 
         Returns
         -------
