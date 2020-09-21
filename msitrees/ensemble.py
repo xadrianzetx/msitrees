@@ -30,7 +30,32 @@ class MSIRandomForestClassifier(MSIBaseClassifier):
 
     @property
     def feature_importances_(self):
-        pass
+        """Returns feature importances
+
+        Feature importance at each node is specified
+        as weighted gini based information gain. Feature
+        importance for each feature is normalized sum of
+        importances at nodes where split was made
+        on particular feature.
+
+        Returns
+        -------
+        importances : np.ndarray
+            Normalized array of feature importances.
+        """
+
+        if not self._fitted:
+            return np.array([])
+
+        allimp = joblib.Parallel(n_jobs=self._n_jobs)(
+            joblib.delayed(getattr)(e, 'feature_importances_') for e in self._estimators
+        )
+
+        # calculate overall feature importance
+        # as the mean over all estimators
+        importances = np.mean(allimp, axis=0)
+
+        return importances / sum(importances)
 
     def _add_estimator(self, x: np.ndarray,
                        y: np.ndarray,
