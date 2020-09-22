@@ -221,7 +221,7 @@ class TestMSIRandomForestClassifier(unittest.TestCase):
         self.assertGreater(acc, 0.95)
         self.assertAlmostEqual(sum(pred_proba[0]), 1.0)
         self.assertEqual(np.argmax(pred_proba[0]), pred[0])
-        self.assertEqual(sum(importances), 1.0)
+        self.assertAlmostEqual(sum(importances), 1.0)
 
 
 class TestMSIRFClassifierPredict(unittest.TestCase):
