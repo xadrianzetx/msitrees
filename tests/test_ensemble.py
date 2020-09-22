@@ -146,6 +146,19 @@ class TestMSIRandomForestClassifier(unittest.TestCase):
         with self.assertRaises(ValueError):
             tree.fit(x, y)
 
+    def test_instance_get_params(self):
+        params = {
+            'n_estimators': 100,
+            'bootstrap': True,
+            'feature_sampling': True,
+            'n_jobs': -1,
+            'random_state': None
+        }
+
+        tree = MSIRandomForestClassifier(**params)
+        gp = tree.get_params()
+        self.assertDictEqual(params, gp)
+
     def test_fit_xor(self):
         """Test if we can fit anything at all"""
         x = np.array(
