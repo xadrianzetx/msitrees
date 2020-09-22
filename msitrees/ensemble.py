@@ -177,7 +177,7 @@ class MSIRandomForestClassifier(MSIBaseClassifier):
         return accuracy
 
     def get_params(self, **kwargs) -> dict:
-        """Get parameters for this estimator.
+        """Get parameters for this estimator
 
         Notes
         -----
@@ -190,5 +190,18 @@ class MSIRandomForestClassifier(MSIBaseClassifier):
 
         return params
 
-    def set_params(self):
-        pass
+    def set_params(self, **params) -> 'MSIRandomForestClassifier':
+        """Set the parameters of this estimator
+
+        Notes
+        -----
+        scikit-learn API compatibility.
+        """
+
+        allowed_params = inspect.getfullargspec(self.__init__)
+        filtered_params = params.keys() & allowed_params.args
+
+        for param in filtered_params:
+            setattr(self, param, params[param])
+
+        return self
