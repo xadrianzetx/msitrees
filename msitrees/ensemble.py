@@ -1,4 +1,5 @@
 import joblib
+import inspect
 import numpy as np
 import pandas as pd
 from collections import Counter
@@ -175,8 +176,19 @@ class MSIRandomForestClassifier(MSIBaseClassifier):
         accuracy = sum(pred == y) / len(y)
         return accuracy
 
-    def get_params(self):
-        pass
+    def get_params(self, **kwargs) -> dict:
+        """Get parameters for this estimator.
+
+        Notes
+        -----
+        scikit-learn API compatibility.
+        """
+
+        spec = inspect.getfullargspec(self.__init__)
+        arguments = filter(lambda arg: arg != 'self', spec.args)
+        params = {arg: getattr(self, arg) for arg in arguments}
+
+        return params
 
     def set_params(self):
         pass
