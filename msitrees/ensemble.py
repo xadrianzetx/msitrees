@@ -19,11 +19,11 @@ class MSIRandomForestClassifier(MSIBaseClassifier):
         super().__init__()
         self._estimators = []
         self._importances = None
-        self._n_estimators = n_estimators
-        self._bootstrap = bootstrap
-        self._sample_feats = feature_sampling
-        self._n_jobs = n_jobs
-        self._random_state = random_state
+        self.n_estimators = n_estimators
+        self.bootstrap = bootstrap
+        self.feature_sampling = feature_sampling
+        self.n_jobs = n_jobs
+        self.random_state = random_state
 
     def __repr__(self):
         return 'MSIRandomForestClassifier()'
@@ -46,7 +46,7 @@ class MSIRandomForestClassifier(MSIBaseClassifier):
         if not self._fitted:
             return np.array([])
 
-        allimp = joblib.Parallel(n_jobs=self._n_jobs)(
+        allimp = joblib.Parallel(n_jobs=self.n_jobs)(
             joblib.delayed(getattr)(e, 'feature_importances_') for e in self._estimators
         )
 
@@ -61,12 +61,12 @@ class MSIRandomForestClassifier(MSIBaseClassifier):
                        seed: int) -> MSIDecisionTreeClassifier:
         """Adds new estimator to ensemble"""
 
-        if self._bootstrap:
+        if self.bootstrap:
             # sample dataset with replacement
             # before fitting new estimator
             indices = np.arange(start=0, stop=self._shape[0])
 
-            if self._random_state:
+            if self.random_state:
                 np.random.seed(seed)
 
             bstrap_idx = np.random.choice(indices, size=self._shape[0])
@@ -78,7 +78,7 @@ class MSIRandomForestClassifier(MSIBaseClassifier):
         clf._internal_fit(
             x, y,
             n_class=self._ncls,
-            sample_features=self._sample_feats
+            sample_features=self.feature_sampling
         )
 
         return clf
@@ -116,11 +116,11 @@ class MSIRandomForestClassifier(MSIBaseClassifier):
         # ommitted by _add_estimator() if global
         # random state is not set
         maxint = np.iinfo(np.int32).max
-        np.random.seed(self._random_state)
-        seeds = np.random.randint(low=0, high=maxint, size=self._n_estimators)
+        np.random.seed(self.random_state)
+        seeds = np.random.randint(low=0, high=maxint, size=self.n_estimators)
 
         # build ensemble
-        self._estimators = joblib.Parallel(n_jobs=self._n_jobs)(
+        self._estimators = joblib.Parallel(n_jobs=self.n_jobs)(
             joblib.delayed(self._add_estimator)(x, y, seed) for seed in seeds
         )
         self._fitted = True
@@ -133,7 +133,7 @@ class MSIRandomForestClassifier(MSIBaseClassifier):
         """
 
         x = self._validate_input(x, expected_dim=2, inference=True)
-        stack = joblib.Parallel(n_jobs=self._n_jobs)(
+        stack = joblib.Parallel(n_jobs=self.n_jobs)(
             joblib.delayed(e._internal_predict)(x) for e in self._estimators
         )
 
@@ -150,7 +150,7 @@ class MSIRandomForestClassifier(MSIBaseClassifier):
         """
 
         x = self._validate_input(x, expected_dim=2, inference=True)
-        stack = joblib.Parallel(n_jobs=self._n_jobs)(
+        stack = joblib.Parallel(n_jobs=self.n_jobs)(
             joblib.delayed(e._internal_predict_proba)(x) for e in self._estimators
         )
 
