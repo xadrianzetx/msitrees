@@ -85,7 +85,7 @@ class MSIRandomForestClassifier(MSIBaseClassifier):
         return clf
 
     def fit(self, x: Union[np.ndarray, pd.DataFrame, pd.Series],
-            y: Union[np.ndarray, pd.Series]) -> 'MSIRandomForestClassifier()':
+            y: Union[np.ndarray, pd.Series]) -> 'MSIRandomForestClassifier':
         """
         TODO docstrings
         """
