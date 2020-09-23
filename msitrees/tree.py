@@ -344,7 +344,7 @@ class MSIDecisionTreeClassifier(MSIBaseClassifier):
 
     def fit(self, x: Union[np.ndarray, pd.DataFrame, pd.Series],
             y: Union[np.ndarray, pd.Series]) -> 'MSIDecisionTreeClassifier':
-        """Fits decision tree from training dataset.
+        """Fits decision tree to training dataset.
 
         Parameters
         ----------
