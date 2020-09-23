@@ -55,6 +55,10 @@ setup(
     description='MSI based machine learning algorithms',
     long_description=get_long_desc(),
     long_description_content_type='text/markdown',
+    project_urls={
+        'Documentation': 'https://msitrees.readthedocs.io/en/latest/index.html',
+        'Source Code': 'https://github.com/xadrianzetx/msitrees/tree/master'
+    },
     packages=find_packages(include=['msitrees']),
     ext_modules=get_ext_modules(),
     classifiers=[
