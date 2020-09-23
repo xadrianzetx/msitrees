@@ -71,7 +71,7 @@ class MSIDecisionTreeClassifier(MSIBaseClassifier):
 
     importances : np.ndarray
         Array with feature importances or None if tree was not
-        yet.
+        fitted.
 
     References
     ----------
