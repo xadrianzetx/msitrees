@@ -129,8 +129,19 @@ class MSIRandomForestClassifier(MSIBaseClassifier):
         return self
 
     def predict(self, x: Union[np.ndarray, pd.DataFrame]) -> np.ndarray:
-        """
-        TODO docstrings
+        """Predicts class labels for each sample in input data X
+
+        Parameters
+        ----------
+        x : np.ndarray
+            Array of samples with shape (n_samples, n_features).
+            Class label is predicted for each sample.
+
+        Returns
+        -------
+        pred : np.ndarray
+            Array with shape (n_samples, )
+            Class label prediction for each sample.
         """
 
         x = self._validate_input(x, expected_dim=2, inference=True)
@@ -146,8 +157,23 @@ class MSIRandomForestClassifier(MSIBaseClassifier):
         return np.array(pred)
 
     def predict_proba(self, x: Union[np.array, pd.DataFrame]) -> np.ndarray:
-        """
-        TODO docstrings
+        """Predicts class probability for each sample in input data X.
+
+        Probability is defined as fraction of class
+        label in a leaf.
+
+        Parameters
+        ----------
+        x : np.ndarray
+            Array of samples with shape (n_samples, n_features).
+            Class probabilities are predicted for each sample.
+
+        Returns
+        -------
+        probas : np.ndarray
+            Array with shape (n_samples, n_targets)
+            Array of probabilities. Each index corresponds to
+            class label and holds predicted porbability of this class.
         """
 
         x = self._validate_input(x, expected_dim=2, inference=True)
@@ -158,8 +184,23 @@ class MSIRandomForestClassifier(MSIBaseClassifier):
         return np.array(stack).mean(axis=0)
 
     def predict_log_proba(self, x: Union[np.array, pd.DataFrame]) -> np.ndarray:
-        """
-        TODO docstrings
+        """Predicts class log probability for each sample in input data X.
+
+        Probability is defined as fraction of class
+        label in a leaf.
+
+        Parameters
+        ----------
+        x : np.ndarray
+            Array of samples with shape (n_samples, n_features).
+            Class log probabilities are predicted for each sample.
+
+        Returns
+        -------
+        logprobas : np.ndarray
+            Array with shape (n_samples, n_targets)
+            Array of log probabilities. Each index corresponds to
+            class label and holds predicted log porbability of this class.
         """
 
         probas = self.predict_proba(x)
@@ -168,8 +209,22 @@ class MSIRandomForestClassifier(MSIBaseClassifier):
 
     def score(self, x: Union[np.ndarray, pd.DataFrame],
               y: Union[np.ndarray, pd.DataFrame]) -> float:
-        """
-        TODO docstrings
+        """Predicts class labelfor each sample in X
+        and computes accuracy score wrt. ground truth.
+
+        Parameters
+        ----------
+        x : np.ndarray
+            Array of samples with shape (n_samples, n_features).
+            Class label is predicted for each sample.
+
+        y : np.ndarray
+            Array of ground truth labels.
+
+        Returns
+        -------
+        accuracy : float
+            Accuracy score for predicted class labels.
         """
 
         pred = self.predict(x)
