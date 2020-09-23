@@ -4,6 +4,12 @@ from typing import Union
 
 
 class MSIBaseClassifier:
+    """Base class for MSI based classifiers
+
+    Notes
+    -----
+    Only internal use.
+    """
 
     def __init__(self):
         self._fitted = False
