@@ -86,8 +86,25 @@ class MSIRandomForestClassifier(MSIBaseClassifier):
 
     def fit(self, x: Union[np.ndarray, pd.DataFrame, pd.Series],
             y: Union[np.ndarray, pd.Series]) -> 'MSIRandomForestClassifier':
-        """
-        TODO docstrings
+        """Fits random forest classifier to training dataset.
+
+        Parameters
+        ----------
+        x : np.ndarray
+            Training data of shape (n_samples, n_features)
+            or (n_samples, ). All values have to be numerical,
+            so perform any required encoding before calling this
+            method.
+
+        y: np.ndarray
+            Ground truth data of shape (n_samples, ). All values
+            have to be numerical, so perform any required encoding
+            before calling this method.
+
+        Returns
+        -------
+        self : MSIRandomForestClassifier
+            Fitted estimator.
         """
 
         x = self._validate_input(x, expected_dim=2)
@@ -209,7 +226,7 @@ class MSIRandomForestClassifier(MSIBaseClassifier):
 
     def score(self, x: Union[np.ndarray, pd.DataFrame],
               y: Union[np.ndarray, pd.DataFrame]) -> float:
-        """Predicts class labelfor each sample in X
+        """Predicts class label for each sample in X
         and computes accuracy score wrt. ground truth.
 
         Parameters
