@@ -3,8 +3,7 @@ from sysconfig import get_paths
 from setuptools import Extension, setup, find_packages
 from setuptools.command.build_ext import build_ext
 
-
-__version__ = '0.2.dev1'
+from msitrees import __version__
 
 
 def get_long_desc():
