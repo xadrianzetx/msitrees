@@ -27,9 +27,10 @@ from typing import Union
 
 import msitrees._core as core
 from msitrees._node import MSINode
+from msitrees._base import MSIBaseClassifier
 
 
-class MSIDecisionTreeClassifier:
+class MSIDecisionTreeClassifier(MSIBaseClassifier):
     """MSI Decision Tree Classifier
 
     Based on breadth-first tree traversal, this no-hyperparameter
@@ -70,7 +71,7 @@ class MSIDecisionTreeClassifier:
 
     importances : np.ndarray
         Array with feature importances or None if tree was not
-        yet.
+        fitted.
 
     References
     ----------
@@ -91,23 +92,22 @@ class MSIDecisionTreeClassifier:
         0.8       , 0.93333333, 0.86666667, 0.8       , 1.        ])
     """
 
-    def __init__(self):
+    def __init__(self, **kwargs):
+        super().__init__()
         self._root = MSINode()
-        self._fitted = False
-        self._shape = None
-        self._ncls = None
-        self._ndim = None
         self._importances = None
+        self._max_features = None
+
+    def __repr__(self):
+        return 'MSIDecisionTreeClassifier()'
 
     @property
     def feature_importances_(self):
         """Returns feature importances
 
-        Feature importance at each node is specified
-        as weighted gini based information gain. Feature
-        importance for each feature is normalized sum of
-        importances at nodes where split was made
-        on particular feature.
+        Each feature importance is calculated as normalized
+        sum of gini based information gain at nodes where
+        split was made on that particular feature.
 
         Returns
         -------
@@ -121,11 +121,13 @@ class MSIDecisionTreeClassifier:
 
     def _get_class_and_proba(self, y: np.ndarray) -> dict:
         """Wraps get_class_and_proba call"""
+
         label, proba = core.get_class_and_proba(y, self._ncls)
         return {'y': label, 'proba': proba}
 
     def _get_best_split(self, x: np.ndarray, y: np.ndarray) -> tuple:
         """Wraps classif_best_split call"""
+
         nfeats = self._shape[1] if self._ndim == 2 else 1
         *criteria, importance, valid = core.classif_best_split(
             x, y, nfeats, self._shape[0])
@@ -135,6 +137,7 @@ class MSIDecisionTreeClassifier:
 
     def _calculate_cost(self, x: np.ndarray, y: np.ndarray) -> float:
         """Calculates cost of growing new branch in a decision tree"""
+
         # approximate surfeit 1 - K(X)/M of a model
         # by  calculating 1 - Comp(M)/M where M
         # is a dict representation of decision tree
@@ -149,7 +152,7 @@ class MSIDecisionTreeClassifier:
         # faster to calculate and should work with eg. MAPE
         # for regression tasks (or just about anything that maps
         # model error to [0, 1])
-        y_pred = self._predict_in_training(x)
+        y_pred = self._internal_predict(x)
         hits = sum(y == y_pred)
         iacc = 1 - (hits / self._shape[0])
 
@@ -164,6 +167,7 @@ class MSIDecisionTreeClassifier:
 
     def _get_indices(self, x: np.ndarray, feature: int, split: float) -> tuple:
         """Returns new dataset indices wrt. best split"""
+
         if self._ndim == 2:
             idx_left = np.where(x[:, feature] < split)[0]
             idx_right = np.where(x[:, feature] >= split)[0]
@@ -176,6 +180,7 @@ class MSIDecisionTreeClassifier:
 
     def _build_tree(self, x: np.ndarray, y: np.ndarray):
         """Builds MSI classification tree"""
+
         min_cost = np.inf
         self._root.indices = np.arange(x.shape[0])
         candidates = [self._root.id]
@@ -187,9 +192,22 @@ class MSIDecisionTreeClassifier:
             # cost function
             best_cand = None
 
+            if self._max_features:
+                # select subsample of features considered
+                # in this split. Each candidate for
+                # split is tested on same set of features
+                colnums = np.arange(0, self._shape[1])
+                n_mask = self._shape[1] - self._max_features
+                mask = np.random.choice(colnums, n_mask, replace=False)
+
             for cand in candidates:
                 node = self._root.get_node_by_id(cand)
                 sub_x, sub_y = x[node.indices], y[node.indices]
+
+                if self._max_features:
+                    # mask fetures not used in this split
+                    sub_x[:, mask] = 0.0
+
                 criteria, valid, importance = self._get_best_split(sub_x, sub_y)
 
                 if not valid:
@@ -240,49 +258,63 @@ class MSIDecisionTreeClassifier:
                 # no more candidates to check
                 break
 
-    def _validate_input(self, data: Union[np.ndarray, pd.DataFrame, pd.Series],
-                        expected_dim: int, inference: bool = False) -> np.ndarray:
-        """Honeypot for incorrect input spec"""
-        allowed_types = (
-            np.ndarray,
-            pd.core.frame.DataFrame,
-            pd.core.frame.Series
-        )
+    def _internal_fit(self, x: Union[np.ndarray, pd.DataFrame, pd.Series],
+                      y: Union[np.ndarray, pd.Series],
+                      n_class: int,
+                      sample_features: bool) -> 'MSIDecisionTreeClassifier':
+        """Fits decision tree from training dataset.
 
-        if type(data) not in allowed_types:
-            raise TypeError('Supported input types: np.ndarray, '
-                            'pd.core.frame.DataFrame, pd.core.frame.Series got'
-                            ' {}'.format(type(data)))
+        Notes
+        -----
+        Bypasses dataset validation before tree is built.
+        Should be only used internally in ensemble algorithms.
+        """
 
-        if isinstance(data, pd.DataFrame) or isinstance(data, pd.Series):
-            data = data.values
+        x = x.astype(np.float)
+        y = y.astype(np.int)
+        self._ncls = n_class
+        self._shape = x.shape
+        self._ndim = x.ndim
 
-        if data.size == 0:
-            raise ValueError('Empty array passed to fit() or predict()')
+        if x.ndim == 2 and sample_features:
+            # if feature subsampling is enabled, use
+            # sklearn mode 'auto'
+            self._max_features = int(np.sqrt(x.shape[1]))
 
-        if data.ndim > expected_dim:
-            raise ValueError('Data with incorrect number of dimensions '
-                             'passed to fit() or predict(). Max dim is '
-                             '{}, got {}'.format(expected_dim, data.ndim))
+        if x.ndim == 2:
+            self._importances = np.zeros(shape=(x.shape[1], ))
 
-        if not np.issubdtype(data.dtype, np.number):
-            raise ValueError('Non numeric value found in data')
+        else:
+            self._importances = np.zeros(shape=(1, ))
 
-        if not np.isfinite(data).all():
-            raise ValueError('Data contains nan or inf')
+        self._build_tree(x, y)
+        self._fitted = True
 
-        if inference:
-            # additional checks on prediction time
-            if not self._fitted:
-                raise ValueError('Fit the model first.')
+        return self
 
-            if self._ndim == 2 and data.shape[-1] != self._shape[-1]:
-                raise ValueError('Number of features does not match'
-                                 ' data model was trained on. Expected'
-                                 ' {}, got {}'
-                                 .format(self._shape[-1], data.shape[-1]))
+    def _internal_predict(self, x: np.ndarray) -> np.ndarray:
+        """Predicts class labels for input data X
 
-        return data
+        Notes
+        -----
+        Overrides input validation and should only be used
+        internally by other methods.
+        """
+
+        pred = [self._root.predict(obs)[0] for obs in x]
+        return np.array(pred)
+
+    def _internal_predict_proba(self, x: np.ndarray) -> np.ndarray:
+        """Predicts class proba for input data X
+
+        Notes
+        -----
+        Overrides input validation and should only be used
+        internally by other methods.
+        """
+
+        pred = [self._root.predict(obs)[1] for obs in x]
+        return np.array(pred)
 
     def get_depth(self) -> int:
         """Returns decision tree depth
@@ -312,7 +344,7 @@ class MSIDecisionTreeClassifier:
 
     def fit(self, x: Union[np.ndarray, pd.DataFrame, pd.Series],
             y: Union[np.ndarray, pd.Series]) -> 'MSIDecisionTreeClassifier':
-        """Fits decision tree from training dataset.
+        """Fits decision tree to training dataset.
 
         Parameters
         ----------
@@ -346,41 +378,17 @@ class MSIDecisionTreeClassifier:
             raise ValueError('Class labels should start from 0')
 
         classes = np.unique(y)
-        self._ncls = len(classes)
+        n_class = len(classes)
 
         # check if classes go in sequence by one
-        if self._ncls != max(classes) + 1:
+        if n_class != max(classes) + 1:
             raise ValueError('Y is mislabeled')
 
-        x = x.astype(np.float)
-        y = y.astype(np.int)
-        self._shape = x.shape
-        self._ndim = x.ndim
-
-        if x.ndim == 2:
-            self._importances = np.zeros(shape=(x.shape[1], ))
-
-        else:
-            self._importances = np.zeros(shape=(1, ))
-
-        self._build_tree(x, y)
-        self._fitted = True
+        self._internal_fit(x, y, n_class=n_class, sample_features=False)
 
         return self
 
-    def _predict_in_training(self, x: np.ndarray) -> np.ndarray:
-        """Predicts class labels for input data X
-
-        Notes
-        -----
-        Overrides input validation and should be used
-        only inside cost function.
-        """
-
-        pred = [self._root.predict(obs)[0] for obs in x]
-        return np.array(pred)
-
-    def score(self, x: np.ndarray, y: np.ndarray) -> np.ndarray:
+    def score(self, x: np.ndarray, y: np.ndarray) -> float:
         """Predicts from X and computes accuracy score wrt. y
 
         Parameters
@@ -394,18 +402,18 @@ class MSIDecisionTreeClassifier:
 
         Returns
         -------
-        mean_acc : float
+        accuracy : float
             Accuracy score for predicted class labels.
         """
 
         self._validate_input(x, expected_dim=2, inference=True)
         self._validate_input(y, expected_dim=1)
-        pred = self._predict_in_training(x)
-        mean_acc = sum(pred == y) / len(y)
+        pred = self._internal_predict(x)
+        accuracy = sum(pred == y) / len(y)
 
-        return mean_acc
+        return accuracy
 
-    def predict(self, x: np.ndarray) -> np.ndarray:
+    def predict(self, x: Union[np.ndarray, pd.DataFrame]) -> np.ndarray:
         """Predicts class labels for input data X
 
         Parameters
@@ -421,11 +429,11 @@ class MSIDecisionTreeClassifier:
             Class label prediction for each sample.
         """
 
-        self._validate_input(x, expected_dim=2, inference=True)
-        pred = self._predict_in_training(x)
+        x = self._validate_input(x, expected_dim=2, inference=True)
+        pred = self._internal_predict(x)
         return pred
 
-    def predict_proba(self, x: np.ndarray) -> np.ndarray:
+    def predict_proba(self, x: Union[np.ndarray, pd.DataFrame]) -> np.ndarray:
         """Predicts class probability for input data X.
 
         Probability is defined as fraction of class
@@ -445,11 +453,11 @@ class MSIDecisionTreeClassifier:
             class label and holds predicted porbability of this class.
         """
 
-        self._validate_input(x, expected_dim=2, inference=True)
-        pred = [self._root.predict(obs)[1] for obs in x]
-        return np.array(pred)
+        x = self._validate_input(x, expected_dim=2, inference=True)
+        pred = self._internal_predict_proba(x)
+        return pred
 
-    def predict_log_proba(self, x: np.ndarray) -> np.ndarray:
+    def predict_log_proba(self, x: Union[np.ndarray, pd.DataFrame]) -> np.ndarray:
         """Predicts class log probability for input data X.
 
         Probability is defined as fraction of class

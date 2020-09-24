@@ -3,8 +3,7 @@ from sysconfig import get_paths
 from setuptools import Extension, setup, find_packages
 from setuptools.command.build_ext import build_ext
 
-
-__version__ = '0.1'
+from msitrees import __version__
 
 
 def get_long_desc():
@@ -55,6 +54,10 @@ setup(
     description='MSI based machine learning algorithms',
     long_description=get_long_desc(),
     long_description_content_type='text/markdown',
+    project_urls={
+        'Documentation': 'https://msitrees.readthedocs.io/en/latest/index.html',
+        'Source Code': 'https://github.com/xadrianzetx/msitrees/tree/master'
+    },
     packages=find_packages(include=['msitrees']),
     ext_modules=get_ext_modules(),
     classifiers=[
@@ -74,6 +77,7 @@ setup(
     install_requires=[
         'numpy>=1.18',
         'pandas>=1.0.0',
+        'joblib>=0.14.0'
     ],
     cmdclass={'build_ext': build_ext},
     zip_safe=False
