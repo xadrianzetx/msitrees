@@ -5,3 +5,4 @@ API docs
    :maxdepth: 2
 
    tree
+   ensemble
