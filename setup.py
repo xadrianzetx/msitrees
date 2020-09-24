@@ -77,7 +77,7 @@ setup(
     install_requires=[
         'numpy>=1.18',
         'pandas>=1.0.0',
-        'joblib>=0.16.0'
+        'joblib>=0.14.0'
     ],
     cmdclass={'build_ext': build_ext},
     zip_safe=False
