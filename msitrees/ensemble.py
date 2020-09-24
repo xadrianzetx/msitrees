@@ -10,6 +10,85 @@ from msitrees.tree import MSIDecisionTreeClassifier
 
 
 class MSIRandomForestClassifier(MSIBaseClassifier):
+    """MSI Random Forest Classifier
+
+    A collection of MSI based decision tree classifiers
+    fitted on bootstrapped sub-samples of dataset. Final
+    class label is decided by majority voting between all
+    estimators.
+
+    Parameters
+    ----------
+    n_estimators : int, default=100
+        Number of tree estimators to fit
+
+    bootstrap : bool, default=True
+        When true, each estimator in will
+        be fitted with bootstrap sub-sample of
+        original dataset.
+
+    feature_sampling : bool, default=True
+        When true, number of features considered
+        at each split will be equal to sqrt(n_features).
+        This is equivalent of sklearn max_features param
+        set to 'auto'.
+
+    n_jobs : int, default=-1
+        Number of parallel jobs to run. When set to -1
+        all CPUs are used. 1 means no parallel processing.
+
+    random_state : int, default=None
+        Sets seed for class instance. Used to control
+        bootstrap. Note that this seeds only generator
+        that sets random state for each estimator, so
+        trees generally should have their own unique seeds.
+        When random_state is set to a number, those seeds will
+        be reproduced at each run. Parameter set to None should
+        result in different estimator seeding each time.
+
+    Attributes
+    ----------
+    estimators : list
+        list with all fited MSIDecisionTreeClassifier instances.
+
+    fitted : bool
+        Boolean variable indicating if tree was previously
+        fitted.
+
+    shape : tuple
+        Shape of dataset X with (n_samples, n_features)
+        or None if tree was not yet fitted.
+
+    ncls : int
+        Number of classification categories or None
+        if tree was not yet fitted.
+
+    ndim : int
+        Number of dataset X dimensions. 1 if n_features eq 1,
+        2 if n_features > 1 or None if tree was not yet fitted.
+
+    importances : np.ndarray
+        Array with feature importances or None if tree was not fitted.
+
+    References
+    ----------
+    - [1] https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=8767915
+    - [2] https://www.cs.bu.edu/teaching/c/tree/breadth-first/
+    - [3] https://en.wikipedia.org/wiki/Kolmogorov_complexity
+    - [4] https://www.stat.berkeley.edu/~breiman/RandomForests/cc_home.htm
+
+    Examples
+    --------
+    >>> from msitrees.ensemble import MSIRandomForestClassifier
+    >>> from sklearn.datasets import load_iris
+    >>> from sklearn.model_selection import cross_val_score
+    >>> data = load_iris()
+    >>> clf = MSIRandomForestClassifier()
+    >>> cross_val_score(clf, data['data'], data['target'], cv=10)
+    ...
+    array([1.        , 1.        , 1.        , 1.        , 0.93333333,
+       0.86666667, 0.93333333, 0.86666667, 0.8       , 1.        ])
+    """
 
     def __init__(self, n_estimators: int = 100,
                  bootstrap: bool = True,
