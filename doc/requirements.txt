@@ -1,3 +1,4 @@
 sphinx>=2.1
 numpy
 pandas
+joblib
