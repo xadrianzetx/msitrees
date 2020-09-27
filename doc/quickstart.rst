@@ -78,11 +78,11 @@ by comparing accuracy on validation set of MNIST dataset.
    study = optuna.create_study(direction='maximize')
    study.optimize(objective, n_jobs=-1, show_progress_bar=True, n_trials=500)
    
-   # fit bentchmark model on best params
-   bentchmark = RandomForestClassifier(**study.best_params)
-   bentchmark = bentchmark.fit(x_train, y_train)
+   # fit benchmark model on best params
+   benchmark = RandomForestClassifier(**study.best_params)
+   benchmark = benchmark.fit(x_train, y_train)
 
-   pred = bentchmark.predict(x_valid)
+   pred = benchmark.predict(x_valid)
    accuracy_score(y_valid, pred)
    # 0.9711111111111111
 
@@ -110,7 +110,7 @@ even though MSI has no explicit parameter controlling tree depth.
 
 .. code-block:: python
 
-   np.median([e.get_depth() for e in bentchmark.estimators_])
+   np.median([e.get_depth() for e in benchmark.estimators_])
    # 12.0
    np.median([e.get_depth() for e in clf._estimators])
    # 12.0
