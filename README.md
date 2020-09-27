@@ -44,10 +44,6 @@ python setup.py install
 
 Windows builds require at least [MSVC2015](https://www.microsoft.com/en-gb/download/details.aspx?id=48145)
 
-## Reference documentation
-
-API documentation is available [here](https://msitrees.readthedocs.io/en/latest/index.html).
-
 ## Quick start
 
 ```python
@@ -62,6 +58,10 @@ cross_val_score(clf, data['data'], data['target'], cv=10)
 # array([1.        , 1.        , 1.        , 0.93333333, 0.93333333,
     #    0.8       , 0.93333333, 0.86666667, 0.8       , 1.        ])
 ```
+
+## Reference documentation
+
+API documentation is available [here](https://msitrees.readthedocs.io/en/latest/index.html).
 
 ## Zero hyperparameter based approach
 
@@ -98,11 +98,11 @@ some sort of search. We are going to compare ```MSIRandomForestClassifier``` wit
    study = optuna.create_study(direction='maximize')
    study.optimize(objective, n_jobs=-1, show_progress_bar=True, n_trials=500)
    
-   # fit bentchmark model on best params
-   bentchmark = RandomForestClassifier(**study.best_params)
-   bentchmark = bentchmark.fit(x_train, y_train)
+   # fit benchmark model on best params
+   benchmark = RandomForestClassifier(**study.best_params)
+   benchmark = benchmark.fit(x_train, y_train)
 
-   pred = bentchmark.predict(x_valid)
+   pred = benchmark.predict(x_valid)
    accuracy_score(y_valid, pred)
    # 0.9711111111111111
 ```
@@ -115,7 +115,7 @@ Since MSI based algorithm has no additional hyperparameters, code is sparse.
    from sklearn.datasets import load_iris
    from sklearn.model_selection import train_test_split
    from sklearn.metrics import accuracy_score
-    
+
    data = load_digits()
    x_train, x_valid, y_train, y_valid = train_test_split(data['data'], data['target'], random_state=42)
 
@@ -130,7 +130,7 @@ Results for both random forest algorithms are comparable. Furthermore, median de
 even though MSI has no explicit parameter controlling tree depth.
 
 ```python
-   np.median([e.get_depth() for e in bentchmark.estimators_])
+   np.median([e.get_depth() for e in benchmark.estimators_])
    # 12.0
    np.median([e.get_depth() for e in clf._estimators])
    # 12.0
