@@ -4,8 +4,8 @@ Examples
 Minimal example
 ---------------
 
-:code:`msitrees` has similar API to :code:`scikit-learn`, which allows for fast model iteration. Below is an example, where decision tree decision
-tree classifier is scored over 10 fold cross validation.
+:code:`msitrees` follows :code:`scikit-learn` API style, which allows for fast model iteration. Below is an example, where decision
+tree classifier is fitted and scored over 10 fold cross validation using :code:`cross_val_score()`.
 
 .. code-block:: python
 
